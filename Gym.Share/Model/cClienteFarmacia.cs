@@ -15,7 +15,7 @@ namespace Edus.Share.Model
         public DateTime FechaNacimiento { get; set; }  // Fecha de nacimiento
         public string Telefono { get; set; }           // Número de teléfono
         public string Email { get; set; }              // Correo electrónico
-        public string Estado { get; set; }             // Activo / Inactivo Hola buenas tardes 2
+        public string Estado { get; set; }             // Activo / Inactivo Hola buenas tardes 
 
         public cClienteFarmacia()
         {
