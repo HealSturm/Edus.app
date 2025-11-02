@@ -20,7 +20,7 @@ namespace Edus.Share.Model
         public cClienteFarmacia()
         {
             Password = string.Empty;
-            Role = "Cliente";
+            Role = string.Empty;
             Identificacion = string.Empty;
             Nombre = string.Empty;
             FechaNacimiento = DateTime.Now;

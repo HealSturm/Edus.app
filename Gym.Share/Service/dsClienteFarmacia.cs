@@ -41,7 +41,7 @@ namespace Edus.Share.Service
                            Telefono,
                            Email,
                            Estado
-                       FROM cClienteFarmacia";
+                       FROM ClienteFarmacia";
 
                 var result = await db.QueryAsync<cClienteFarmacia>(sql);
                 return result.ToList();
