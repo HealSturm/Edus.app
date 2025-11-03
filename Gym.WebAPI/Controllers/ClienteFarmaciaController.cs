@@ -29,5 +29,29 @@ namespace Edus.WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpPost]
+        [Route("insertarClienteFarmacia")]
+        public async Task<ActionResult<bool>> insertarClienteFarmacia([FromBody] cClienteFarmacia _cliente)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest("Datos del cliente inválidos.");
+
+            try
+            {
+                dbConection db = new dbConection();
+                dsClienteFarmacia mdsCat = new dsClienteFarmacia(db.sqlConection);
+
+                bool resultado = await mdsCat.insertarClienteFarmacia(_cliente);
+
+                if (resultado)
+                    return Ok(true);
+                else
+                    return BadRequest("No se pudo insertar el cliente.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error al insertar el cliente: " + ex.Message);
+            }
+        }
     }
 }
