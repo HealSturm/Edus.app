@@ -58,7 +58,7 @@ namespace Edus.Share.Service
             {
                 using var db = dbcon();
 
-                string sql = @"INSERT INTO cClienteFarmacia
+                string sql = @"INSERT INTO ClienteFarmacia
                        (Password, Role, Identificacion, Nombre, FechaNacimiento, Telefono, Email, Estado)
                        VALUES
                        (@Password, @Role, @Identificacion, @Nombre, @FechaNacimiento, @Telefono, @Email, @Estado)";
@@ -90,7 +90,7 @@ namespace Edus.Share.Service
             {
                 using var db = dbcon();
 
-                string sql = @"UPDATE cClienteFarmacia
+                string sql = @"UPDATE ClienteFarmacia
                        SET 
                            Password = @Password,
                            Role = @Role,
@@ -128,7 +128,7 @@ namespace Edus.Share.Service
             {
                 using var db = dbcon();
 
-                string sql = @"DELETE FROM cClienteFarmacia
+                string sql = @"DELETE FROM ClienteFarmacia
                        WHERE Identificacion = @Identificacion";
 
                 var result = await db.ExecuteAsync(sql, new
