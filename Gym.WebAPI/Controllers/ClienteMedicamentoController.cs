@@ -88,31 +88,37 @@ namespace Edus.WebAPI.Controllers
         }
         //******************************************************************************************************
         [HttpDelete]
-        [Route("borrarClienteMedicamento/{Identificacion}")]
-        public async Task<ActionResult<string>> borrarClienteMedicamento(int Identificacion)
+        [Route("borrarClienteMedicamento/{Identificacion}/{IdMedicamento}")]
+        public async Task<ActionResult<string>> borrarClienteMedicamento(int Identificacion, int IdMedicamento)
         {
             try
             {
                 dbConection db = new dbConection();
                 dsClienteMedicamento ndsClienteMedicamento = new dsClienteMedicamento(db.sqlConection);
 
-                cClienteMedicamento ClienteMedicamento = new cClienteMedicamento();
-                ClienteMedicamento.Identificacion = Identificacion;
+                // Creamos el objeto con ambos valores
+                cClienteMedicamento ClienteMedicamento = new cClienteMedicamento
+                {
+                    Identificacion = Identificacion,
+                    IdMedicamento = IdMedicamento
+                };
 
+                // Intentamos eliminar el registro
                 if (await ndsClienteMedicamento.borrarClienteMedicamento(ClienteMedicamento))
                 {
-                    return Ok("Medicamiento Cliente eliminado correctamente.");
+                    return Ok("ClienteMedicamento eliminado correctamente.");
                 }
                 else
                 {
-                    return NotFound("No se encontró un Medicamiento cliente con esa identificación.");
+                    return NotFound("No se encontró un registro de ClienteMedicamento con esos datos.");
                 }
             }
             catch (Exception ex)
             {
-                return BadRequest($"Error al eliminar Medicamiento cliente: {ex.Message}");
+                return BadRequest($"Error al eliminar ClienteMedicamento: {ex.Message}");
             }
         }
+
 
 
 

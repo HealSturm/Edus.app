@@ -85,38 +85,38 @@ namespace Edus.WebAPI.Controllers
                     });
                 }
             }
-            //******************************************************************************************************
-            [HttpDelete]
-            [Route("borrarclienteMedicamento/{Identificacion}")]
-            public async Task<ActionResult<string>> borrarMedicamento(int Identificacion)
+        //******************************************************************************************************
+        [HttpDelete]
+        [Route("borrarclienteMedicamento/{IdMedicamento}")]
+        public async Task<ActionResult<string>> borrarMedicamento(int IdMedicamento)
+        {
+            try
             {
-                try
-                {
-                    dbConection db = new dbConection();
+                dbConection db = new dbConection();
                 dsMedicamento ndsMedicamento = new dsMedicamento(db.sqlConection);
 
                 cMedicamento Medicamento = new cMedicamento();
-                Medicamento.Identificacion = Identificacion;
+                Medicamento.IdMedicamento = IdMedicamento;
 
-                    if (await ndsMedicamento.borrarMedicamento(Medicamento))
-                    {
-                        return Ok("Medicamento eliminado correctamente.");
-                    }
-                    else
-                    {
-                        return NotFound("No se encontró un Medicamento con esa identificación.");
-                    }
-                }
-                catch (Exception ex)
+                if (await ndsMedicamento.borrarMedicamento(Medicamento))
                 {
-                    return BadRequest($"Error al eliminar Medicamento: {ex.Message}");
+                    return Ok("Medicamento eliminado correctamente.");
+                }
+                else
+                {
+                    return NotFound("No se encontró un Medicamento con esa identificación.");
                 }
             }
-
-
-
-
-
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al eliminar Medicamento: {ex.Message}");
+            }
         }
+
+
+
+
+
+    }
     }
 
