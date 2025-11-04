@@ -38,7 +38,7 @@ namespace Edus.Share.Service
                            Marca,
                            Indicaciones,
                            Estado
-                       FROM cMedicamento";
+                       FROM Medicamento";
 
                 var result = await db.QueryAsync<cMedicamento>(sql);
                 return result.ToList();
@@ -56,7 +56,7 @@ namespace Edus.Share.Service
             {
                 using var db = dbcon();
 
-                string sql = @"INSERT INTO cMedicamento
+                string sql = @"INSERT INTO Medicamento
                        (Descripcion, Presentacion, Marca, Indicaciones, Estado)
                        VALUES
                        (@Descripcion, @Presentacion, @Marca, @Indicaciones, @Estado)";
@@ -85,7 +85,7 @@ namespace Edus.Share.Service
             {
                 using var db = dbcon();
 
-                string sql = @"UPDATE cMedicamento
+                string sql = @"UPDATE Medicamento
                        SET 
                            Descripcion = @Descripcion,
                            Presentacion = @Presentacion,
@@ -120,7 +120,7 @@ namespace Edus.Share.Service
             {
                 using var db = dbcon();
 
-                string sql = @"DELETE FROM cMedicamento
+                string sql = @"DELETE FROM Medicamento
                        WHERE IdMedicamento = @IdMedicamento";
 
                 var result = await db.ExecuteAsync(sql, new
