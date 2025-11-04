@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 
 namespace Edus.WebAPI.Controllers
-{
+{///
     [Route("api/[controller]")]
     [ApiController]
     public class ClienteFarmaciaController : ControllerBase
