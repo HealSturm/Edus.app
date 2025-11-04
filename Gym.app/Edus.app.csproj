@@ -72,5 +72,12 @@
       <ProjectReference Include="..\Gym.Bll\Edus.Bll.csproj" />
       <ProjectReference Include="..\Gym.Share\Edus.Share.csproj" />
     </ItemGroup>
+	
+	<ItemGroup>
+		<Content Update="wwwroot\**\*">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
 
 </Project>

@@ -1,0 +1,36 @@
+﻿@page "/login"
+@layout InicioSesion
+
+
+@inherits LayoutComponentBase
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center" Style="height:100vh;">
+    <MudPaper Class="pa-6" Elevation="4" Style="width: 90%; max-width: 400px;">
+        <MudStack Spacing="2">
+            <MudText Typo="Typo.h5" Align="Align.Center">Iniciar sesión</MudText>
+
+            <MudTextField @bind-Value="_username" Label="Usuario" Variant="Variant.Outlined" FullWidth="true" />
+            <MudTextField @bind-Value="_password" Label="Contraseña" Variant="Variant.Outlined" InputType="InputType.Password" FullWidth="true" />
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="Login">
+                Entrar
+            </MudButton>
+        </MudStack>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private string _username;
+    private string _password;
+
+    private void Login()
+    {
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+
+    [Inject] NavigationManager Navigation { get; set; }
+}

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gym.Bll.Model
+namespace Edus.Bll.Model
 {
     public class cApiUrl
     {

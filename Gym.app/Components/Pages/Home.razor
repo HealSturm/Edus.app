@@ -3,3 +3,24 @@
 @using Edus.Share.Model
 @inject ISnackbar sb;
 
+<MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center" Style="height:100vh;">
+    
+        <MudStack Spacing="2">
+
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true">
+            <MudIcon Icon="@Icons.Material.Filled.Medication"></MudIcon>
+                Medicinas
+            </MudButton>
+           
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" >
+            <MudIcon Icon="@Icons.Material.Filled.AccountCircle"></MudIcon>
+                Clientes
+            </MudButton>
+
+        </MudStack>
+    
+</MudContainer>
+
+@code {
+   
+}
