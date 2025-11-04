@@ -1,6 +1,6 @@
-﻿using Gym.Bll.Interface;
-using Gym.Bll.Service;
-using Gym.Share.Model;
+﻿using Edus.Bll.Interface;
+using Edus.Bll.Service;
+using Edus.Share.Model;
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 
@@ -21,7 +21,7 @@ namespace Gym.app
 
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices();
-            builder.Services.AddSingleton<ICategoria,sCategoria>();
+           // builder.Services.AddSingleton<IClienteFarmacia, sClienteFarmacia>();
 
 
 #if DEBUG
