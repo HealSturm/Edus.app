@@ -1,0 +1,130 @@
+﻿@page "/usuarios"
+@using Edus.app.Data.Services
+@using Edus.Share.Model
+@using Edus.app.Data.Services
+@using Gym.App.Data.Services
+@inject ISnackbar snackbar
+
+
+<div class="row text-center">
+    <h3>Lista de Usuarios</h3>
+</div>
+
+<div class="row">
+    <div class="col-3">
+        <button class="btn btn-primary rounded-3" @onclick="CargarListaUsuarios" style="width:100%">
+            Cargar Lista Usuarios
+        </button>
+    </div>
+
+    <div class="col-3">
+        <button class="btn btn-secondary" @onclick="NuevoUsuario">Agregar</button>
+    </div>
+</div>
+
+<div class="row" style="display:@mListaVisible">
+    <MudDataGrid T="cUsuarioFarmacia" Items="@mListaUsuarios" Dense>
+        <Columns>
+            <PropertyColumn Property="x => x.IdUsuario" Title="Id Usuario"/>
+            <PropertyColumn Property="x => x.Nombre" Title="Nombre"/>
+            <PropertyColumn Property="x => x.Email" Title="Correo"/>
+            <PropertyColumn Property="x => x.Role" Title="Role"/>
+            <PropertyColumn Property="x => x.Estado" Title="Estado"/>
+            <PropertyColumn Property="x => x.Password" Title="Password" />
+        </Columns>
+    </MudDataGrid>
+</div>
+
+<div class="row" style="display:@mAgregarVisible">
+    <div class="row mt-2 text-center">
+        <h5>Agregar Usuario</h5>
+    </div>
+
+    
+
+    <div class="row">
+        <MudTextField @bind-Value="mUsuario.Nombre" Label="Nombre del usuario" Variant="Variant.Outlined"></MudTextField>
+    </div>
+
+    <div class="row">
+        <MudTextField @bind-Value="mUsuario.Email" Label="Correo del usuario" Variant="Variant.Outlined"></MudTextField>
+    </div>
+    <div class="row">
+        <MudTextField @bind-Value="mUsuario.Password" Label="Password" Variant="Variant.Outlined" InputType="@PasswordInput"
+                      Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ButtonTestclick"
+                      AdornmentAriaLabel="Show Password" />
+    </div>
+
+    <div class="row">
+        <button class="btn btn-primary rounded-3" @onclick="AgregarUsuario">Agregar Usuario</button>
+    </div>
+    
+</div>
+
+@code {
+    List<cUsuarioFarmacia> mListaUsuarios = new List<cUsuarioFarmacia>();
+    cUsuarioFarmacia mUsuario = new cUsuarioFarmacia();
+
+    string mListaVisible = "none";
+    string mAgregarVisible = "inline";
+
+    // Password toggle
+    bool isShow;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    void ButtonTestclick()
+    {
+        if (isShow)
+        {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else
+        {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
+    }
+
+    private void CargarListaUsuarios()
+    {
+        dbFBUsuarios mdslUsuario = new dbFBUsuarios();
+        mListaUsuarios = mdslUsuario.getUsuarios();
+        snackbar.Add("Lista de usuarios Actualizada", Severity.Success);
+    }
+
+    private void AgregarUsuario()
+    {
+        dbFBUsuarios mdslUsuario = new dbFBUsuarios();
+        mUsuario.Password = cEncriptar256.Encrypt(mUsuario.Password);
+
+        if (mdslUsuario.agregarUsuario(mUsuario) == true)
+        {
+            mListaUsuarios = mdslUsuario.getUsuarios();
+            snackbar.Add("El usuario se agregó correctamente", Severity.Success);
+
+            // limpiar modelo de forma segura según tipos
+            mUsuario.IdUsuario = "";
+            mUsuario.Nombre = string.Empty;
+            mUsuario.Email = string.Empty;
+            mUsuario.Password = string.Empty;
+
+            mListaVisible = "inline";
+            mAgregarVisible = "none";
+        }
+        else
+        {
+            snackbar.Add("Error al agregar el usuario", Severity.Error);
+        }
+    }
+    //********************************************************************************
+    private void NuevoUsuario()
+    {
+        mListaVisible = "none";
+        mAgregarVisible = "inline";
+        mUsuario = new cUsuarioFarmacia();
+    }
+}
