@@ -8,7 +8,7 @@ namespace Edus.Share.Model
 {
     public class cUsuarioFarmacia
     {
-        public int IdUsuario{ get; set; }
+        public string IdUsuario{ get; set; }
         public string Nombre { get; set; }
 
         public string Email { get; set; }
@@ -21,7 +21,7 @@ namespace Edus.Share.Model
 
         public cUsuarioFarmacia()
         {
-            IdUsuario = 0;
+            IdUsuario = string.Empty;
             Nombre = string.Empty;
             Email = string.Empty;
             Password = string.Empty;
