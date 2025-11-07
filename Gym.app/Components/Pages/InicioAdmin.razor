@@ -1,0 +1,32 @@
+﻿@page "/"
+@using Edus.Bll.Interface
+@using Edus.Share.Model
+@inject ISnackbar sb;
+@inject NavigationManager NavigationManager
+
+
+<MudContainer  Style="height:100vh; width: 100%;">
+    <MudImage Src="..\Resources\Images\edus_farmacias.png" Alt="Logo" Width="15" Class="mb-4" />
+
+
+    <MudStack Spacing="2" Style="height:100vh; width: 100%;" Class="d-flex justify-center align-center">
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width: 90%; height:5rem; display:flex; flex-direction:row; justify-content:start; margin-bottom:2rem">
+            <MudIcon Icon="@Icons.Material.Filled.Medication" Size="Size.Large" Style="margin-left:1rem"></MudIcon>
+            <span Style="margin-left:1rem"></span>
+                Medicinas
+            </MudButton>
+
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width: 90%; height:5rem; display:flex; flex-direction:row; justify-content:start" OnClick="@(() => Navigation.NavigateTo("/medicinas"))">
+            <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Size="Size.Large" Style="margin-left:1rem"></MudIcon>
+            <span Style="margin-left:1rem"></span>
+                Clientes
+            </MudButton>
+
+        </MudStack>
+    
+</MudContainer>
+
+@code {
+   
+}

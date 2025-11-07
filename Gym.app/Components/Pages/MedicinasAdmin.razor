@@ -1,0 +1,51 @@
+﻿@page "/medicinas"
+@using Edus.Share.Model
+@inject ISnackbar sb;
+
+<MudContainer MaxWidth="MaxWidth.False" Class="px-4 py-4" Style="background-color:#E5E6E6; min-height:100vh;">
+    <MudText Typo="Typo.h5" Class="mb-4" Color="Color.Primary">Medicinas</MudText>
+
+    <MudStack Spacing="3">
+        @foreach (var medicina in Medicinas)
+        {
+            <MudPaper Elevation="2" Class="p-4" Style="background-color:#3BB2CE; color:white; border-radius:12px;">
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.subtitle1">Nombre: @medicina.Nombre</MudText>
+                    <MudText Typo="Typo.subtitle2">Dosis: @medicina.Dosis</MudText>
+                    <MudText Typo="Typo.subtitle2">Presentación: @medicina.Presentacion</MudText>
+
+                    <MudStack Direction="Row" Justify="End" Spacing="1" Class="mt-2">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Secondary" OnClick="@(() => EditarMedicina(medicina))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => EliminarMedicina(medicina))" />
+                    </MudStack>
+                </MudStack>
+            </MudPaper>
+        }
+    </MudStack>
+</MudContainer>
+
+@code {
+    private List<MedicinaModel> Medicinas = new()
+    {
+        new MedicinaModel { Nombre = "Paracetamol", Dosis = "200mg", Presentacion = "Tableta" },
+        new MedicinaModel { Nombre = "Esomeprazol", Dosis = "500mg", Presentacion = "Tableta" },
+        new MedicinaModel { Nombre = "Clorferamina", Dosis = "100ml", Presentacion = "Jarabe" }
+    };
+
+    private void EditarMedicina(MedicinaModel medicina)
+    {
+        sb.Add($"Editar: {medicina.Nombre}", Severity.Info);
+    }
+
+    private void EliminarMedicina(MedicinaModel medicina)
+    {
+        sb.Add($"Eliminar: {medicina.Nombre}", Severity.Warning);
+    }
+
+    public class MedicinaModel
+    {
+        public string Nombre { get; set; }
+        public string Dosis { get; set; }
+        public string Presentacion { get; set; }
+    }
+}
