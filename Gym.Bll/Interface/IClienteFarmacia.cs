@@ -11,5 +11,7 @@ namespace Edus.Bll.Interface
     {
         Task<List<cClienteFarmacia>> getClienteFarmacia();
         Task<bool> insertarClienteFarmacia(cClienteFarmacia pClienteFarmacia);
+        Task<bool> actualizarClienteFarmacia(cClienteFarmacia pClienteFarmacia);
+        Task<bool> borrarClienteFarmacia(cClienteFarmacia pClienteFarmacia);
     }
 }
