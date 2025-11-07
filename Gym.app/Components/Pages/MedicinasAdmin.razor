@@ -14,7 +14,7 @@
                     <MudText Typo="Typo.subtitle2">Dosis: @medicina.Dosis</MudText>
                     <MudText Typo="Typo.subtitle2">Presentación: @medicina.Presentacion</MudText>
 
-                    <MudStack Direction="Row" Justify="End" Spacing="1" Class="mt-2">
+                    <MudStack Direction="Row" Justify="Justify.FlexEnd" Spacing="1" Class="mt-2">
                         <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Secondary" OnClick="@(() => EditarMedicina(medicina))" />
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => EliminarMedicina(medicina))" />
                     </MudStack>
