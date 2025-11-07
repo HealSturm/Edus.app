@@ -10,9 +10,4 @@
     <ProjectReference Include="..\Gym.Share\Edus.Share.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Interface\" />
-    <Folder Include="Service\" />
-  </ItemGroup>
-
 </Project>

@@ -66,5 +66,72 @@ namespace Edus.Bll.Service
                 return false;
             }
         }
+        //*********************************************************************************************
+        public async Task<bool> actualizarClienteFarmacia(cClienteFarmacia pClienteFarmacia)
+        {
+            try
+            {
+                cApiUrl mapi = new cApiUrl();
+                urlApi = mapi.getWebApiUrl().ToString().Trim() + "api/ClienteFarmacia/actualizarClienteFarmacia";
+                var httpClient = new HttpClient();
+                var mclienteSerializado = JsonSerializer.Serialize(pClienteFarmacia);
+                HttpContent mContent = new StringContent(mclienteSerializado, Encoding.UTF8, "application/json");
+                var respuesta = await httpClient.PutAsync(urlApi, mContent);
+                if (respuesta.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+        //*********************************************************************************************
+        public async Task<bool> borrarClienteFarmacia(cClienteFarmacia pClienteFarmacia)
+        {
+            try
+            {
+                cApiUrl mapi = new cApiUrl();
+                urlApi = mapi.getWebApiUrl().ToString().Trim() + $"api/ClienteFarmacia/borrarClienteFarmacia/";
+
+                var httpClient = new HttpClient();
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Delete,
+                    RequestUri = new Uri(urlApi),
+                    Content = new StringContent(
+                        JsonSerializer.Serialize(pClienteFarmacia), // ✅ Corregido: era _ClienteFarmacia
+                        Encoding.UTF8,
+                        "application/json"
+                    )
+                };
+
+                var response = await httpClient.SendAsync(request);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else
+                {
+                    // Opcional: Log del error
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Error al borrar cliente: {errorContent}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Opcional: Log de la excepción
+                Console.WriteLine($"Excepción al borrar cliente: {ex.Message}");
+                return false;
+            }
+            
+        }
     }
 }
