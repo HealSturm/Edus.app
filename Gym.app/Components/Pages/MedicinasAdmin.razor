@@ -1,6 +1,7 @@
-﻿@page "/medicinas"
+@page "/medicinas"
 @using Edus.Share.Model
-@inject ISnackbar sb;
+@inject ISnackbar sb
+@inject IDialogService DialogService
 
 <MudContainer MaxWidth="MaxWidth.False" Class="px-4 py-4" Style="background-color:#E5E6E6; min-height:100vh;">
     <MudText Typo="Typo.h5" Class="mb-4" Color="Color.Primary">Medicinas</MudText>
@@ -9,43 +10,68 @@
         @foreach (var medicina in Medicinas)
         {
             <MudPaper Elevation="2" Class="p-4" Style="background-color:#3BB2CE; color:white; border-radius:12px;">
-                <MudStack Spacing="1">
-                    <MudText Typo="Typo.subtitle1">Nombre: @medicina.Nombre</MudText>
-                    <MudText Typo="Typo.subtitle2">Dosis: @medicina.Dosis</MudText>
-                    <MudText Typo="Typo.subtitle2">Presentación: @medicina.Presentacion</MudText>
-
-                    <MudStack Direction="Row" Justify="Justify.FlexEnd" Spacing="1" Class="mt-2">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.subtitle1">Descripción: @medicina.Descripcion</MudText>
+                        <MudText Typo="Typo.subtitle2">Presentación: @medicina.Presentacion</MudText>
+                        <MudText Typo="Typo.subtitle2">Marca: @medicina.Marca</MudText>
+                        <MudText Typo="Typo.subtitle2">Indicaciones: @medicina.Indicaciones</MudText>
+                        <MudText Typo="Typo.subtitle2">Estado: @medicina.Estado</MudText>
+                    </MudItem>
+                    <MudItem xs="12" Class="d-flex justify-end mt-2">
                         <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Secondary" OnClick="@(() => EditarMedicina(medicina))" />
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => EliminarMedicina(medicina))" />
-                    </MudStack>
-                </MudStack>
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Secondary" OnClick="@(() => EliminarMedicina(medicina))" />
+                    </MudItem>
+                </MudGrid>
             </MudPaper>
         }
     </MudStack>
 </MudContainer>
 
 @code {
-    private List<MedicinaModel> Medicinas = new()
+    private List<cMedicamento> Medicinas = new()
     {
-        new MedicinaModel { Nombre = "Paracetamol", Dosis = "200mg", Presentacion = "Tableta" },
-        new MedicinaModel { Nombre = "Esomeprazol", Dosis = "500mg", Presentacion = "Tableta" },
-        new MedicinaModel { Nombre = "Clorferamina", Dosis = "100ml", Presentacion = "Jarabe" }
+        new cMedicamento { Descripcion = "Paracetamol", Presentacion = "Tableta", Marca = "Genérico", Indicaciones = "Fiebre y dolor", Estado = "Activo" },
+        new cMedicamento { Descripcion = "Esomeprazol", Presentacion = "Tableta", Marca = "Pensa", Indicaciones = "Reflujo gástrico", Estado = "Activo" },
+        new cMedicamento { Descripcion = "Clorferamina", Presentacion = "Jarabe", Marca = "MK", Indicaciones = "Alergias", Estado = "Inactivo" }
     };
 
-    private void EditarMedicina(MedicinaModel medicina)
+    private async Task EditarMedicina(cMedicamento medicina)
     {
-        sb.Add($"Editar: {medicina.Nombre}", Severity.Info);
+        var parameters = new DialogParameters
+        {
+            ["Medicina"] = new cMedicamento
+            {
+                IdMedicamento = medicina.IdMedicamento,
+                Descripcion = medicina.Descripcion,
+                Presentacion = medicina.Presentacion,
+                Marca = medicina.Marca,
+                Indicaciones = medicina.Indicaciones,
+                Estado = medicina.Estado
+            }
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small };
+
+        var dialog = DialogService.Show<EditarMedicina>("Editar Medicamento", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var medicinaEditada = (cMedicamento)result.Data;
+
+            medicina.Descripcion = medicinaEditada.Descripcion;
+            medicina.Presentacion = medicinaEditada.Presentacion;
+            medicina.Marca = medicinaEditada.Marca;
+            medicina.Indicaciones = medicinaEditada.Indicaciones;
+            medicina.Estado = medicinaEditada.Estado;
+
+            sb.Add("Medicamento actualizado", Severity.Success);
+        }
     }
 
-    private void EliminarMedicina(MedicinaModel medicina)
+    private void EliminarMedicina(cMedicamento medicina)
     {
-        sb.Add($"Eliminar: {medicina.Nombre}", Severity.Warning);
-    }
-
-    public class MedicinaModel
-    {
-        public string Nombre { get; set; }
-        public string Dosis { get; set; }
-        public string Presentacion { get; set; }
+        sb.Add($"Eliminar: {medicina.Descripcion}", Severity.Warning);
     }
 }
