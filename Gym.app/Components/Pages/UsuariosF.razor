@@ -12,13 +12,15 @@
 
 <div class="row">
     <div class="col-3">
-        <button class="btn btn-primary rounded-3" @onclick="CargarListaUsuarios" style="width:100%">
-            Cargar Lista Usuarios
-        </button>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="CargarListaUsuarios">
+            Mostrar Usuarios
+        </MudButton>
     </div>
 
-    <div class="col-3">
-        <button class="btn btn-secondary" @onclick="NuevoUsuario">Agregar</button>
+    <div class="col-3" style="margin-left:2rem">
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" @onclick="NuevoUsuario">
+            Agregar
+        </MudButton>
     </div>
 </div>
 
@@ -40,8 +42,6 @@
         <h5>Agregar Usuario</h5>
     </div>
 
-    
-
     <div class="row">
         <MudTextField @bind-Value="mUsuario.Nombre" Label="Nombre del usuario" Variant="Variant.Outlined"></MudTextField>
     </div>
@@ -49,6 +49,7 @@
     <div class="row">
         <MudTextField @bind-Value="mUsuario.Email" Label="Correo del usuario" Variant="Variant.Outlined"></MudTextField>
     </div>
+
     <div class="row">
         <MudTextField @bind-Value="mUsuario.Password" Label="Password" Variant="Variant.Outlined" InputType="@PasswordInput"
                       Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ButtonTestclick"
@@ -56,7 +57,9 @@
     </div>
 
     <div class="row">
-        <button class="btn btn-primary rounded-3" @onclick="AgregarUsuario">Agregar Usuario</button>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AgregarUsuario">
+            Agregar Usuario
+        </MudButton>
     </div>
     
 </div>
@@ -93,6 +96,7 @@
     {
         dbFBUsuarios mdslUsuario = new dbFBUsuarios();
         mListaUsuarios = mdslUsuario.getUsuarios();
+        StateHasChanged();
         snackbar.Add("Lista de usuarios Actualizada", Severity.Success);
     }
 
