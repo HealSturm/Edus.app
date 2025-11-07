@@ -78,6 +78,10 @@
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <Folder Include="Data\Models\" />
+	</ItemGroup>
 
 
 </Project>
