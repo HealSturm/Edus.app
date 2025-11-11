@@ -1,0 +1,57 @@
+﻿@page "/cliente"
+@using Edus.Share.Model
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-6">
+    <MudText Typo="Typo.h5" Color="Color.Primary" Style="margin:2rem" >Tus Datos</MudText>
+
+    <MudPaper Elevation="4" Class="p-6" Style="border-radius:12px;">
+        
+        <MudGrid Style="padding:1rem">
+            <MudItem xs="12" sm="6">
+                <MudText Typo="Typo.subtitle2">Identificación:</MudText>
+                <MudText>@Cliente.Identificacion</MudText>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudText Typo="Typo.subtitle2">Nombre:</MudText>
+                <MudText>@Cliente.Nombre</MudText>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudText Typo="Typo.subtitle2">Fecha de nacimiento:</MudText>
+                <MudText>@Cliente.FechaNacimiento.ToString("dd/MM/yyyy")</MudText>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudText Typo="Typo.subtitle2">Teléfono:</MudText>
+                <MudText>@Cliente.Telefono</MudText>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudText Typo="Typo.subtitle2">Email:</MudText>
+                <MudText>@Cliente.Email</MudText>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudText Typo="Typo.subtitle2">Estado:</MudText>
+                <MudText Color="@GetEstadoColor()" Class="font-weight-bold">@Cliente.Estado</MudText>
+            </MudItem>
+
+        </MudGrid>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private cClienteFarmacia Cliente = new()
+    {
+        Identificacion = "1-2345-6789",
+        Nombre = "Daniel Gómez",
+        FechaNacimiento = new DateTime(1990, 5, 12),
+        Telefono = "8888-1234",
+        Email = "daniel@example.com",
+        Estado = "Activo"
+    };
+
+    private Color GetEstadoColor() =>
+        Cliente.Estado == "Activo" ? Color.Success : Color.Error;
+}

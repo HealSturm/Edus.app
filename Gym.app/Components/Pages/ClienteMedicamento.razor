@@ -1,0 +1,62 @@
+﻿@page "/clientemedicamentos"
+@using Edus.Share.Model
+
+<MudContainer MaxWidth="MaxWidth.False" Class="px-4 py-4" Style="min-height:100vh;">
+    <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">Mis Medicamentos</MudText>
+
+    <MudStack Spacing="3">
+        @foreach (var item in MedicamentosCompletos)
+        {
+            <MudPaper Elevation="3" Class="p-4" Style="border-radius:12px; background-color:primary;">
+                <MudGrid>
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.subtitle1">Descripción: @item.Descripcion</MudText>
+                        <MudText Typo="Typo.subtitle2">Indicaciones: @item.Indicaciones</MudText>
+                        <MudText Typo="Typo.subtitle2">Dosis recomendada: @item.Dosis</MudText>
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        }
+    </MudStack>
+</MudContainer>
+
+@code {
+    // Simulación de datos
+    private List<cClienteMedicamento> ClienteMedicamentos = new()
+    {
+        new cClienteMedicamento { Identificacion = 123, IdMedicamento = 1, Dosis = "200mg" },
+        new cClienteMedicamento { Identificacion = 123, IdMedicamento = 2, Dosis = "500mg" },
+        new cClienteMedicamento { Identificacion = 123, IdMedicamento = 3, Dosis = "100ml" }
+    };
+
+    private List<cMedicamento> Medicamentos = new()
+    {
+        new cMedicamento { IdMedicamento = 1, Descripcion = "Paracetamol", Indicaciones = "Fiebre y dolor", Presentacion = "Tableta" },
+        new cMedicamento { IdMedicamento = 2, Descripcion = "Esomeprazol", Indicaciones = "Reflujo gástrico", Presentacion = "Tableta" },
+        new cMedicamento { IdMedicamento = 3, Descripcion = "Clorferamina", Indicaciones = "Alergias", Presentacion = "Jarabe" }
+    };
+
+    // Resultado combinado
+    private List<MedicamentoClienteView> MedicamentosCompletos => (
+        from cm in ClienteMedicamentos
+        join m in Medicamentos on cm.IdMedicamento equals m.IdMedicamento
+        select new MedicamentoClienteView
+        {
+            IdMedicamento = m.IdMedicamento,
+            Descripcion = m.Descripcion,
+            Indicaciones = m.Indicaciones,
+            Dosis = cm.Dosis
+        }).ToList();
+
+    // Modelo combinado
+    public class MedicamentoClienteView
+    {
+        public int IdMedicamento { get; set; }
+        public string Descripcion { get; set; }
+        public string Indicaciones { get; set; }
+        public string Dosis { get; set; }
+    }
+
+    private string GetColor(int id) =>
+        id % 2 == 0 ? "#3BB2CE" : "#1976D2"; // Alterna entre Secondary y Primary
+}
