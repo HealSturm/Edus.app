@@ -14,26 +14,20 @@ namespace Edus.app.Data.Services
     {
         private string fbUrl = "https://edusprogra5-default-rtdb.europe-west1.firebasedatabase.app/";
 
-        //******************************************************************************************************
-        public List<cUsuarioFarmacia> getUsuarios()
-        {
-            List<cUsuarioFarmacia> mLista = new List<cUsuarioFarmacia>();
-            FirebaseClient fbDb = new FirebaseClient(fbUrl);
+        
 
+        public async Task<List<cUsuarioFarmacia>> getUsuariosAsync()
+        {
             try
             {
-                fbDb.Child("Usuarios").AsObservable<cUsuarioFarmacia>().Subscribe(
-                    (item) =>
-                    {
-                        if (item.Object != null)
-                        {
-                            mLista.Add(item.Object);
-                        }
-                    }
-                );
-                return mLista;
+                FirebaseClient fbDb = new FirebaseClient(fbUrl);
+                var snapshot = await fbDb.Child("Usuarios").OnceAsync<cUsuarioFarmacia>();
+                return snapshot
+                    .Where(x => x.Object != null)
+                    .Select(x => x.Object)
+                    .ToList();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new List<cUsuarioFarmacia>();
             }
