@@ -1,129 +1,142 @@
 ﻿@page "/usuarios"
 @using Edus.app.Data.Services
 @using Edus.Share.Model
-@using Edus.app.Data.Services
 @using Edus.App.Data.Services
 @inject ISnackbar snackbar
 
+<MudPaper Class="pa-4">
 
-<div class="row text-center">
-    <h3>Lista de Usuarios</h3>
-</div>
-
-<div class="row">
-    <div class="col-3">
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="CargarListaUsuarios">
-            Mostrar Usuarios
-        </MudButton>
+    <div class="row text-center">
+        <h3>Lista de Usuarios</h3>
     </div>
 
-    <div class="col-3" style="margin-left:2rem">
-        <MudButton Variant="Variant.Filled" Color="Color.Secondary" @onclick="NuevoUsuario">
-            Agregar
-        </MudButton>
-    </div>
-</div>
+    <div class="row mb-4">
+        <div class="col-3">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="CargarListaUsuarios">
+                Mostrar Usuarios
+            </MudButton>
+        </div>
 
-<div class="row" style="display:@mListaVisible">
-    <MudDataGrid T="cUsuarioFarmacia" Items="@mListaUsuarios" Dense>
-        <Columns>
-            <PropertyColumn Property="x => x.IdUsuario" Title="Id Usuario"/>
-            <PropertyColumn Property="x => x.Nombre" Title="Nombre"/>
-            <PropertyColumn Property="x => x.Email" Title="Correo"/>
-            <PropertyColumn Property="x => x.Role" Title="Role"/>
-            <PropertyColumn Property="x => x.Estado" Title="Estado"/>
-            <PropertyColumn Property="x => x.Password" Title="Password" />
-        </Columns>
-    </MudDataGrid>
-</div>
-
-<div class="row" style="display:@mAgregarVisible">
-    <div class="row mt-2 text-center">
-        <h5>Agregar Usuario</h5>
+        <div class="col-3" style="margin-left:2rem">
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" @onclick="NuevoUsuario">
+                Agregar
+            </MudButton>
+        </div>
     </div>
 
-    <div class="row">
-        <MudTextField @bind-Value="mUsuario.Nombre" Label="Nombre del usuario" Variant="Variant.Outlined"></MudTextField>
+    <!-- LISTA DE USUARIOS -->
+    <div class="row" style="display:@mListaVisible">
+        <MudDataGrid T="cUsuarioFarmacia" Items="@mListaUsuarios" Dense>
+            <Columns>
+                <PropertyColumn Property="x => x.IdUsuario" Title="Id Usuario" />
+                <PropertyColumn Property="x => x.Nombre" Title="Nombre" />
+                <PropertyColumn Property="x => x.Email" Title="Correo" />
+                <PropertyColumn Property="x => x.Role" Title="Rol" />
+                <PropertyColumn Property="x => x.Estado" Title="Estado" />
+                <PropertyColumn Property="x => x.Password" Title="Password" />
+            </Columns>
+        </MudDataGrid>
     </div>
 
-    <div class="row">
-        <MudTextField @bind-Value="mUsuario.Email" Label="Correo del usuario" Variant="Variant.Outlined"></MudTextField>
-    </div>
+    <!-- FORMULARIO PARA AGREGAR -->
+    <div class="row" style="display:@mAgregarVisible">
+        <div class="row mt-2 text-center">
+            <h5>Agregar Usuario</h5>
+        </div>
 
-    <div class="row">
-        <MudTextField @bind-Value="mUsuario.Password" Label="Password" Variant="Variant.Outlined" InputType="@PasswordInput"
-                      Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="ButtonTestclick"
-                      AdornmentAriaLabel="Show Password" />
-    </div>
+        <MudForm @ref="form" @bind-IsValid="formIsValid">
+            <div class="row">
+                <MudTextField @bind-Value="mUsuario.Nombre" Label="Nombre del usuario" Variant="Variant.Outlined"
+                              Required="true" RequiredError="El nombre es obligatorio" />
+            </div>
 
-    <div class="row">
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="AgregarUsuario">
-            Agregar Usuario
-        </MudButton>
+            <div class="row mt-2">
+                <MudTextField @bind-Value="mUsuario.Email" Label="Correo del usuario" Variant="Variant.Outlined"
+                              Required="true" RequiredError="El correo es obligatorio"
+                              Validation="@(new Func<string, string>(ValidarCorreo))" />
+            </div>
+
+            <div class="row mt-2">
+                <MudTextField @bind-Value="mUsuario.Password" Label="Contraseña" Variant="Variant.Outlined"
+                              InputType="@PasswordInput" Required="true" RequiredError="La contraseña es obligatoria"
+                              Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon"
+                              OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Mostrar Contraseña" />
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-6">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AgregarUsuario" Disabled="!formIsValid" Style="width:100%">
+                        Agregar Usuario
+                    </MudButton>
+                </div>
+
+                <div class="col-6">
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="CancelarAgregarUsuario" Style="width:100%">
+                        Cancelar
+                    </MudButton>
+                </div>
+            </div>
+        </MudForm>
     </div>
-    
-</div>
+</MudPaper>
 
 @code {
-    List<cUsuarioFarmacia> mListaUsuarios = new List<cUsuarioFarmacia>();
-    cUsuarioFarmacia mUsuario = new cUsuarioFarmacia();
+    List<cUsuarioFarmacia> mListaUsuarios = new();
+    cUsuarioFarmacia mUsuario = new();
 
-    string mListaVisible = "none";
-    string mAgregarVisible = "inline";
+    string mListaVisible = "inline";
+    string mAgregarVisible = "none";
 
     // Password toggle
     bool isShow;
     InputType PasswordInput = InputType.Password;
     string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
 
+    // Form validation
+    MudForm? form;
+    bool formIsValid;
+
     void ButtonTestclick()
     {
-        if (isShow)
-        {
-            isShow = false;
-            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
-            PasswordInput = InputType.Password;
-        }
-        else
-        {
-            isShow = true;
-            PasswordInputIcon = Icons.Material.Filled.Visibility;
-            PasswordInput = InputType.Text;
-        }
+        isShow = !isShow;
+        PasswordInputIcon = isShow ? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff;
+        PasswordInput = isShow ? InputType.Text : InputType.Password;
     }
 
     // ********************************************************************************
     private async Task CargarListaUsuarios()
     {
-        dbFBUsuarios mdslUsuario = new dbFBUsuarios();
+        dbFBUsuarios mdslUsuario = new();
         mListaUsuarios = await mdslUsuario.getUsuariosAsync();
-        StateHasChanged();
         snackbar.Add("Lista de usuarios actualizada", Severity.Success);
     }
 
     // ********************************************************************************
     private async Task AgregarUsuario()
     {
-        dbFBUsuarios mdslUsuario = new dbFBUsuarios();
+        await form.Validate();
+
+        if (!formIsValid)
+        {
+            snackbar.Add("Por favor complete correctamente todos los campos.", Severity.Warning);
+            return;
+        }
+
+        dbFBUsuarios mdslUsuario = new();
         mUsuario.Password = cEncriptar256.Encrypt(mUsuario.Password);
 
         if (mdslUsuario.agregarUsuario(mUsuario))
         {
             mListaUsuarios = await mdslUsuario.getUsuariosAsync();
-            snackbar.Add("El usuario se agregó correctamente", Severity.Success);
+            snackbar.Add("El usuario se agregó correctamente.", Severity.Success);
 
-            // limpiar modelo
-            mUsuario.IdUsuario = "";
-            mUsuario.Nombre = string.Empty;
-            mUsuario.Email = string.Empty;
-            mUsuario.Password = string.Empty;
-
+            LimpiarFormulario();
             mListaVisible = "inline";
             mAgregarVisible = "none";
         }
         else
         {
-            snackbar.Add("Error al agregar el usuario", Severity.Error);
+            snackbar.Add("Error al agregar el usuario.", Severity.Error);
         }
     }
 
@@ -133,5 +146,32 @@
         mListaVisible = "none";
         mAgregarVisible = "inline";
         mUsuario = new cUsuarioFarmacia();
+    }
+
+    private void CancelarAgregarUsuario()
+    {
+        LimpiarFormulario();
+        mListaVisible = "inline";
+        mAgregarVisible = "none";
+        snackbar.Add("Operación cancelada.", Severity.Info);
+    }
+
+    private void LimpiarFormulario()
+    {
+        mUsuario.Nombre = string.Empty;
+        mUsuario.Email = string.Empty;
+        mUsuario.Password = string.Empty;
+    }
+
+    // Validación personalizada del correo
+    private string ValidarCorreo(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "El correo es obligatorio";
+
+        if (!System.Text.RegularExpressions.Regex.IsMatch(value, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            return "Ingrese un correo válido";
+
+        return null;
     }
 }
