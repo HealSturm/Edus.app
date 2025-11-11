@@ -1,6 +1,7 @@
 ﻿@page "/"
 @layout InicioSesionLayout
 @using Edus.app.Data.Services
+@using Edus.App.Data.Services
 @inject NavigationManager Navigation
 @inject ISnackbar Snackbar
 
@@ -49,17 +50,18 @@
                 (!string.IsNullOrWhiteSpace(u.Email) && u.Email.Equals(_username, StringComparison.OrdinalIgnoreCase))
                 || (!string.IsNullOrWhiteSpace(u.Nombre) && u.Nombre.Equals(_username, StringComparison.OrdinalIgnoreCase)));
 
-            if (usuario == null || usuario.Password != _password)
+            var encryptedInput = cEncriptar256.Encrypt(_password);
+            if (usuario == null || usuario.Password != encryptedInput)
             {
                 Snackbar.Add("Usuario o contraseña incorrectos.", Severity.Error);
                 return;
             }
 
-            if (!string.Equals(usuario.Estado, "Activo", StringComparison.OrdinalIgnoreCase))
-            {
-                Snackbar.Add("Cuenta inactiva. Contacte al administrador.", Severity.Error);
-                return;
-            }
+            // if (!string.Equals(usuario.Estado, "Activo", StringComparison.OrdinalIgnoreCase))
+            // {
+            //     Snackbar.Add("Cuenta inactiva. Contacte al administrador.", Severity.Error);
+            //     return;
+            // }
 
             // Redirigir según rol
             if (string.Equals(usuario.Role, "admin", StringComparison.OrdinalIgnoreCase))

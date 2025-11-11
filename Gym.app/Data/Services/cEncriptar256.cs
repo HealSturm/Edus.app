@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Gym.App.Data.Services
+namespace Edus.App.Data.Services
 {
     public static class cEncriptar256
     {
