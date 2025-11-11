@@ -1,29 +1,84 @@
-﻿@page "/login"
+﻿@page "/"
 @layout InicioSesionLayout
+@using Edus.app.Data.Services
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
 
 <MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center" Style="height:100vh;">
     <MudPaper Class="pa-6" Elevation="4" Style="width: 90%; max-width: 400px;">
-        <MudStack Spacing="2">
-            <MudText Typo="Typo.h5" Align="Align.Center">Iniciar sesión</MudText>
+        <MudForm @ref="_form" @bind-IsValid="_formIsValid">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.h5" Align="Align.Center">Iniciar sesión</MudText>
 
-            <MudTextField @bind-Value="_username" Label="Usuario" Variant="Variant.Outlined" FullWidth="true" />
-            <MudTextField @bind-Value="_password" Label="Contraseña" Variant="Variant.Outlined" InputType="InputType.Password" FullWidth="true" />
+                <MudTextField @bind-Value="_username" Label="Usuario (email)" Variant="Variant.Outlined" FullWidth="true" Required="true" RequiredError="Ingrese su usuario" />
+                <MudTextField @bind-Value="_password" Label="Contraseña" Variant="Variant.Outlined" InputType="InputType.Password" FullWidth="true" Required="true" RequiredError="Ingrese su contraseña" />
 
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="Login">
-                Entrar
-            </MudButton>
-        </MudStack>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@_isLoading" OnClick="Login">
+                    @if (_isLoading) { <MudProgressCircular Size="Size.Small" Class="me-2" /> }
+                    Entrar
+                </MudButton>
+            </MudStack>
+        </MudForm>
     </MudPaper>
 </MudContainer>
 
 @code {
+    private MudForm _form;
+    private bool _formIsValid;
+    private bool _isLoading;
     private string _username;
     private string _password;
 
-    private void Login()
+    private async Task Login()
     {
-        Navigation.NavigateTo("/", forceLoad: true);
-    }
+        await _form.Validate();
+        if (!_formIsValid)
+        {
+            Snackbar.Add("Complete los campos obligatorios.", Severity.Warning);
+            return;
+        }
 
-    [Inject] NavigationManager Navigation { get; set; }
+        _isLoading = true;
+        try
+        {
+            var svc = new dbFBUsuarios();
+            var usuarios = await svc.getUsuariosAsync();
+
+            // Buscar por email o por nombre
+            var usuario = usuarios.FirstOrDefault(u =>
+                (!string.IsNullOrWhiteSpace(u.Email) && u.Email.Equals(_username, StringComparison.OrdinalIgnoreCase))
+                || (!string.IsNullOrWhiteSpace(u.Nombre) && u.Nombre.Equals(_username, StringComparison.OrdinalIgnoreCase)));
+
+            if (usuario == null || usuario.Password != _password)
+            {
+                Snackbar.Add("Usuario o contraseña incorrectos.", Severity.Error);
+                return;
+            }
+
+            if (!string.Equals(usuario.Estado, "Activo", StringComparison.OrdinalIgnoreCase))
+            {
+                Snackbar.Add("Cuenta inactiva. Contacte al administrador.", Severity.Error);
+                return;
+            }
+
+            // Redirigir según rol
+            if (string.Equals(usuario.Role, "admin", StringComparison.OrdinalIgnoreCase))
+            {
+                Navigation.NavigateTo("/inicio", forceLoad: false);
+            }
+            else
+            {
+                // cliente u otros roles
+                Navigation.NavigateTo("/iniciocliente", forceLoad: false);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Error al autenticar: " + ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
 }

@@ -9,7 +9,7 @@
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new MainPage()) { Title = "Gym.app" };
+            return new Window(new MainPage()) { Title = "Edus.app" };
         }
     }
 }

@@ -92,25 +92,27 @@
         }
     }
 
-    private void CargarListaUsuarios()
+    // ********************************************************************************
+    private async Task CargarListaUsuarios()
     {
         dbFBUsuarios mdslUsuario = new dbFBUsuarios();
-        mListaUsuarios = mdslUsuario.getUsuarios();
+        mListaUsuarios = await mdslUsuario.getUsuariosAsync();
         StateHasChanged();
-        snackbar.Add("Lista de usuarios Actualizada", Severity.Success);
+        snackbar.Add("Lista de usuarios actualizada", Severity.Success);
     }
 
-    private void AgregarUsuario()
+    // ********************************************************************************
+    private async Task AgregarUsuario()
     {
         dbFBUsuarios mdslUsuario = new dbFBUsuarios();
         mUsuario.Password = cEncriptar256.Encrypt(mUsuario.Password);
 
-        if (mdslUsuario.agregarUsuario(mUsuario) == true)
+        if (mdslUsuario.agregarUsuario(mUsuario))
         {
-            mListaUsuarios = mdslUsuario.getUsuarios();
+            mListaUsuarios = await mdslUsuario.getUsuariosAsync();
             snackbar.Add("El usuario se agregó correctamente", Severity.Success);
 
-            // limpiar modelo de forma segura según tipos
+            // limpiar modelo
             mUsuario.IdUsuario = "";
             mUsuario.Nombre = string.Empty;
             mUsuario.Email = string.Empty;
@@ -124,7 +126,8 @@
             snackbar.Add("Error al agregar el usuario", Severity.Error);
         }
     }
-    //********************************************************************************
+
+    // ********************************************************************************
     private void NuevoUsuario()
     {
         mListaVisible = "none";
