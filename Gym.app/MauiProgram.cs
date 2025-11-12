@@ -1,6 +1,7 @@
 ﻿using Edus.Bll.Interface;
 using Edus.Bll.Service;
 using Edus.Share.Model;
+
 using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 
@@ -21,13 +22,15 @@ namespace Gym.app
 
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices();
-           // builder.Services.AddSingleton<IClienteFarmacia, sClienteFarmacia>();
+            // builder.Services.AddSingleton<IClienteFarmacia, sClienteFarmacia>();
 
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7003/") });
+           
 
             return builder.Build();
         }
