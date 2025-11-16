@@ -1,0 +1,134 @@
+﻿@page "/registro"
+@layout InicioSesionLayout
+@using Edus.app.Data.Services
+@using Edus.App.Data.Services
+@using Edus.Share.Model
+@inject NavigationManager Navigation
+@inject ISnackbar snackbar
+
+<MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center" Style="height:100vh;">
+    <MudPaper Class="pa-6" Elevation="4" Style="width: 90%; max-width: 400px;">
+        <div class="row">
+            <div class="row mt-2 text-center">
+                <h5>Agregar Usuario</h5>
+            </div>
+
+            <MudForm @ref="form" @bind-IsValid="formIsValid">
+                <div class="row">
+                    <MudTextField @bind-Value="mUsuario.Nombre" Label="Nombre del usuario" Variant="Variant.Outlined"
+                                  Required="true" RequiredError="El nombre es obligatorio" />
+                </div>
+
+                <div class="row mt-2">
+                    <MudTextField @bind-Value="mUsuario.Email" Label="Correo del usuario" Variant="Variant.Outlined"
+                                  Required="true" RequiredError="El correo es obligatorio"
+                                  Validation="@(new Func<string, string>(ValidarCorreo))" />
+                </div>
+
+                <div class="row mt-2">
+                    <MudTextField @bind-Value="mUsuario.Password" Label="Contraseña" Variant="Variant.Outlined"
+                                  InputType="@PasswordInput" Required="true" RequiredError="La contraseña es obligatoria"
+                                  Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon"
+                                  OnAdornmentClick="ButtonTestclick" AdornmentAriaLabel="Mostrar Contraseña" />
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-6">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AgregarUsuario" Disabled="!formIsValid" Style="width:100%">
+                            Agregar Usuario
+                        </MudButton>
+                    </div>
+
+                    <div class="col-6">
+                        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="CancelarAgregarUsuario" Style="width:100%">
+                            Cancelar
+                        </MudButton>
+                    </div>
+                </div>
+            </MudForm>
+        </div>
+    </MudPaper>
+</MudContainer>
+
+
+
+@code {
+    List<cUsuarioFarmacia> mListaUsuarios = new();
+    cUsuarioFarmacia mUsuario = new();
+
+    string mListaVisible = "inline";
+    string mAgregarVisible = "none";
+
+    // Password toggle
+    bool isShow;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    // Form validation
+    MudForm? form;
+    bool formIsValid;
+
+    private async Task AgregarUsuario()
+    {
+        await form.Validate();
+
+        if (!formIsValid)
+        {
+            snackbar.Add("Por favor complete correctamente todos los campos.", Severity.Warning);
+            return;
+        }
+
+        dbFBUsuarios mdslUsuario = new();
+        mUsuario.Password = cEncriptar256.Encrypt(mUsuario.Password);
+
+        if (mdslUsuario.agregarUsuario(mUsuario))
+        {
+            mListaUsuarios = await mdslUsuario.getUsuariosAsync();
+            snackbar.Add("El usuario se agregó correctamente.", Severity.Success);
+
+            LimpiarFormulario();
+            mListaVisible = "inline";
+            mAgregarVisible = "none";
+            Navigation.NavigateTo("/", forceLoad: false);
+
+        }
+        else
+        {
+            snackbar.Add("Error al agregar el usuario.", Severity.Error);
+        }
+    }
+    private void CancelarAgregarUsuario()
+    {
+        LimpiarFormulario();
+        mListaVisible = "inline";
+        mAgregarVisible = "none";
+        snackbar.Add("Operación cancelada.", Severity.Info);
+        Navigation.NavigateTo("/", forceLoad: false);
+    }
+
+    private void LimpiarFormulario()
+    {
+        mUsuario.Nombre = string.Empty;
+        mUsuario.Email = string.Empty;
+        mUsuario.Password = string.Empty;
+    }
+
+    // Validación personalizada del correo
+    private string ValidarCorreo(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "El correo es obligatorio";
+
+        if (!System.Text.RegularExpressions.Regex.IsMatch(value, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            return "Ingrese un correo válido";
+
+        return null;
+    }
+
+    void ButtonTestclick()
+    {
+        isShow = !isShow;
+        PasswordInputIcon = isShow ? Icons.Material.Filled.Visibility : Icons.Material.Filled.VisibilityOff;
+        PasswordInput = isShow ? InputType.Text : InputType.Password;
+    }
+}
