@@ -1,4 +1,5 @@
 ﻿using Edus.Bll.Interface;
+using Edus.Bll.Model;
 using Edus.Bll.Service;
 using Edus.Share.Model;
 
@@ -20,17 +21,14 @@ namespace Gym.app
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
-            builder.Services.AddMauiBlazorWebView();
-            builder.Services.AddMudServices();
-            // builder.Services.AddSingleton<IClienteFarmacia, sClienteFarmacia>();
-
-
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();
 #endif
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7003/") });
-           
+            builder.Services.AddMauiBlazorWebView();
+            builder.Services.AddMudServices();
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(new cApiUrl().getWebApiUrl()) });
+            builder.Services.AddScoped<IClienteFarmacia, sClienteFarmacia>();
 
             return builder.Build();
         }

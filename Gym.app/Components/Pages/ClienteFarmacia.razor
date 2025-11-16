@@ -1,57 +1,217 @@
 ﻿@page "/cliente"
 @using Edus.Share.Model
+@using Edus.Bll.Interface
+@using Edus.Share
+@inject IClienteFarmacia ClienteService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
-<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-6">
-    <MudText Typo="Typo.h5" Color="Color.Primary" Style="margin:2rem" >Tus Datos</MudText>
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+    <MudStack Spacing="4">
+        <MudPaper Class="p-4" Elevation="2">
+            <MudStack Direction="Row" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h5" Color="Color.Primary">Clientes Farmacia</MudText>
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="NuevoCliente">
+                    <MudIcon Icon="@Icons.Material.Filled.Add" />&nbsp;Nuevo
+                </MudButton>
+            </MudStack>
 
-    <MudPaper Elevation="4" Class="p-6" Style="border-radius:12px;">
-        
-        <MudGrid Style="padding:1rem">
-            <MudItem xs="12" sm="6">
-                <MudText Typo="Typo.subtitle2">Identificación:</MudText>
-                <MudText>@Cliente.Identificacion</MudText>
-            </MudItem>
+            <MudTable Items="Clientes" Hover="true" Dense="true" RowClick="OnRowClick">
+                <HeaderContent>
+                    <MudTh>Identificación</MudTh>
+                    <MudTh>Nombre</MudTh>
+                    <MudTh>Teléfono</MudTh>
+                    <MudTh>Email</MudTh>
+                    <MudTh>Estado</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Identificación">@context.Identificacion</MudTd>
+                    <MudTd DataLabel="Nombre">@context.Nombre</MudTd>
+                    <MudTd DataLabel="Teléfono">@context.Telefono</MudTd>
+                    <MudTd DataLabel="Email">@context.Email</MudTd>
+                    <MudTd DataLabel="Estado">
+                        <MudChip T="string" Color="@(context.Estado == "Activo" ? Color.Success : Color.Error)" Variant="Variant.Filled" Size="Size.Small">
+                            @context.Estado
+                        </MudChip>
+                    </MudTd>
+                    <MudTd>
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" OnClick="@(()=>Editar(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(()=>ConfirmarEliminar(context))" />
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudText>No hay clientes registrados.</MudText>
+                </NoRecordsContent>
+            </MudTable>
+        </MudPaper>
 
-            <MudItem xs="12" sm="6">
-                <MudText Typo="Typo.subtitle2">Nombre:</MudText>
-                <MudText>@Cliente.Nombre</MudText>
-            </MudItem>
+        <MudPaper Class="p-4" Elevation="2">
+            <MudText Typo="Typo.h6" Class="mb-2">
+                @(EsNuevo ? "Agregar Cliente" : "Editar Cliente")
+            </MudText>
 
-            <MudItem xs="12" sm="6">
-                <MudText Typo="Typo.subtitle2">Fecha de nacimiento:</MudText>
-                <MudText>@Cliente.FechaNacimiento.ToString("dd/MM/yyyy")</MudText>
-            </MudItem>
+            <MudForm @ref="Form">
+                <MudGrid>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="ClienteEdit.Identificacion" Label="Identificación" Required="true" Disabled="!EsNuevo" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="ClienteEdit.Nombre" Label="Nombre" Required="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudDatePicker @bind-Date="FechaNacimientoTemp" Label="Fecha Nacimiento" Required="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="ClienteEdit.Telefono" Label="Teléfono" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="ClienteEdit.Email" Label="Email" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="string" @bind-Value="ClienteEdit.Estado" Label="Estado" Required="true">
+                            <MudSelectItem Value="Activo">Activo</MudSelectItem>
+                            <MudSelectItem Value="Inactivo">Inactivo</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                </MudGrid>
 
-            <MudItem xs="12" sm="6">
-                <MudText Typo="Typo.subtitle2">Teléfono:</MudText>
-                <MudText>@Cliente.Telefono</MudText>
-            </MudItem>
-
-            <MudItem xs="12" sm="6">
-                <MudText Typo="Typo.subtitle2">Email:</MudText>
-                <MudText>@Cliente.Email</MudText>
-            </MudItem>
-
-            <MudItem xs="12" sm="6">
-                <MudText Typo="Typo.subtitle2">Estado:</MudText>
-                <MudText Color="@GetEstadoColor()" Class="font-weight-bold">@Cliente.Estado</MudText>
-            </MudItem>
-
-        </MudGrid>
-    </MudPaper>
+                <MudStack Direction="Row" Spacing="2" Class="mt-4">
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Guardar" Disabled="@Guardando">
+                        @(Guardando ? "Guardando..." : "Guardar")
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="CancelarEdicion" Disabled="@Guardando">
+                        Cancelar
+                    </MudButton>
+                </MudStack>
+            </MudForm>
+        </MudPaper>
+    </MudStack>
 </MudContainer>
 
 @code {
-    private cClienteFarmacia Cliente = new()
-    {
-        Identificacion = "1-2345-6789",
-        Nombre = "Daniel Gómez",
-        FechaNacimiento = new DateTime(1990, 5, 12),
-        Telefono = "8888-1234",
-        Email = "daniel@example.com",
-        Estado = "Activo"
-    };
+    private List<cClienteFarmacia> Clientes = new();
+    private cClienteFarmacia ClienteEdit = new();
+    private bool EsNuevo = true;
+    private bool Guardando = false;
+    private MudForm? Form;
+    private DateTime? FechaNacimientoTemp;
 
-    private Color GetEstadoColor() =>
-        Cliente.Estado == "Activo" ? Color.Success : Color.Error;
+    protected override async Task OnInitializedAsync()
+    {
+        await CargarClientes();
+        NuevoCliente();
+    }
+
+    private async Task CargarClientes()
+    {
+        try
+        {
+            Clientes = await ClienteService.getClienteFarmacia();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error cargando clientes: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void NuevoCliente()
+    {
+        EsNuevo = true;
+        ClienteEdit = new cClienteFarmacia
+        {
+            FechaNacimiento = DateTime.Today,
+            Estado = "Activo"
+        };
+        FechaNacimientoTemp = ClienteEdit.FechaNacimiento;
+    }
+
+    private void Editar(cClienteFarmacia cliente)
+    {
+        EsNuevo = false;
+        ClienteEdit = new cClienteFarmacia
+        {
+            Identificacion = cliente.Identificacion,
+            Nombre = cliente.Nombre,
+            FechaNacimiento = cliente.FechaNacimiento,
+            Telefono = cliente.Telefono,
+            Email = cliente.Email,
+            Estado = cliente.Estado
+        };
+        FechaNacimientoTemp = ClienteEdit.FechaNacimiento;
+    }
+
+    private async Task Guardar()
+    {
+        await Form!.Validate();
+        if (!Form.IsValid) return;
+        if (FechaNacimientoTemp is null)
+        {
+            Snackbar.Add("Seleccione fecha de nacimiento", Severity.Warning);
+            return;
+        }
+        ClienteEdit.FechaNacimiento = FechaNacimientoTemp.Value;
+
+        Guardando = true;
+        try
+        {
+            bool ok = EsNuevo
+                ? await ClienteService.insertarClienteFarmacia(ClienteEdit)
+                : await ClienteService.actualizarClienteFarmacia(ClienteEdit);
+
+            if (ok)
+            {
+                Snackbar.Add(EsNuevo ? "Cliente agregado" : "Cliente actualizado", Severity.Success);
+                await CargarClientes();
+                NuevoCliente();
+            }
+            else
+            {
+                Snackbar.Add("Operación no completada", Severity.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error guardando cliente: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            Guardando = false;
+        }
+    }
+
+    private void CancelarEdicion() => NuevoCliente();
+
+    private async Task ConfirmarEliminar(cClienteFarmacia cliente)
+    {
+        var result = await DialogService.ShowMessageBox(
+            "Confirmar",
+            (MarkupString)$"¿Eliminar cliente <b>{cliente.Nombre}</b> ({cliente.Identificacion})?",
+            yesText: "Eliminar",
+            cancelText: "Cancelar",
+            options: new DialogOptions { MaxWidth = MaxWidth.ExtraSmall, CloseButton = true });
+        if (result != true) return;
+
+        try
+        {
+            bool ok = await ClienteService.borrarClienteFarmacia(new cClienteFarmacia { Identificacion = cliente.Identificacion });
+            if (ok)
+            {
+                Snackbar.Add("Cliente eliminado", Severity.Success);
+                await CargarClientes();
+                if (!EsNuevo && ClienteEdit.Identificacion == cliente.Identificacion)
+                    NuevoCliente();
+            }
+            else
+            {
+                Snackbar.Add("No se pudo eliminar", Severity.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al eliminar: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private void OnRowClick(TableRowClickEventArgs<cClienteFarmacia> args) => Editar(args.Item);
 }

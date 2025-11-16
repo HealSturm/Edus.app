@@ -33,15 +33,13 @@ namespace Edus.Share.Service
                 using var db = dbcon();
 
                 string sql = @"SELECT 
-                           Password,
-                           Role,
-                           Identificacion,
-                           Nombre,
-                           FechaNacimiento,
-                           Telefono,
-                           Email,
-                           Estado
-                       FROM ClienteFarmacia";
+                  Identificacion,
+                  Nombre,
+                  FechaNacimiento,
+                  Telefono,
+                  Email,
+                  Estado
+               FROM ClienteFarmacia";
 
                 var result = await db.QueryAsync<cClienteFarmacia>(sql);
                 return result.ToList();

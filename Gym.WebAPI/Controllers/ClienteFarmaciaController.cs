@@ -1,122 +1,66 @@
 ﻿using Edus.Share.Model;
 using Edus.Share.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-
-
-
-
 namespace Edus.WebAPI.Controllers
-{///
+{
     [Route("api/[controller]")]
     [ApiController]
     public class ClienteFarmaciaController : ControllerBase
     {
-        [HttpGet]
-        [Route("getClienteFarmacia")]
-        public async Task<ActionResult<List<cClienteFarmacia>>> getClienteFarmacia()
+        [HttpGet("getClienteFarmacia")]
+        public async Task<ActionResult<List<cClienteFarmacia>>> GetClienteFarmacia()
         {
             try
             {
-                dbConection db = new dbConection();
-                dsClienteFarmacia mdsCat= new dsClienteFarmacia(db.sqlConection);
-                List<cClienteFarmacia> mLista = await mdsCat.getClienteFarmacia();
-                return Ok(mLista);
+                var db = new dbConection();
+                var ds = new dsClienteFarmacia(db.sqlConection);
+                var lista = await ds.getClienteFarmacia();
+                return Ok(lista);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
-        //****************************************************************************************************
-        [HttpPost]
-        [Route("insertarClienteFarmacia")]
-        public async Task<ActionResult<bool>> insertarClienteFarmacia([FromBody] cClienteFarmacia _cliente)
+        [HttpPost("insertarClienteFarmacia")]
+        public async Task<ActionResult<bool>> InsertarClienteFarmacia([FromBody] cClienteFarmacia cliente)
         {
-            if (!ModelState.IsValid)
-                return BadRequest("Datos del cliente inválidos.");
-
+            if (cliente == null) return BadRequest("Datos inválidos");
             try
             {
-                dbConection db = new dbConection();
-                dsClienteFarmacia mdsCat = new dsClienteFarmacia(db.sqlConection);
-
-                bool resultado = await mdsCat.insertarClienteFarmacia(_cliente);
-
-                if (resultado)
-                    return Ok(true);
-                else
-                    return BadRequest("No se pudo insertar el cliente.");
+                var db = new dbConection();
+                var ds = new dsClienteFarmacia(db.sqlConection);
+                var ok = await ds.insertarClienteFarmacia(cliente);
+                return ok ? Ok(true) : BadRequest(false);
             }
-            catch (Exception ex)
-            {
-                return BadRequest("Error al insertar el cliente: " + ex.Message);
-            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
-        //****************************************************************************************************
-        [HttpPut]
-        [Route("actualizarclienteFarmacia")]
-        public async Task<ActionResult<string>> actualizarClienteFarmacia([FromBody] cClienteFarmacia _cliente)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
 
+        [HttpPut("actualizarClienteFarmacia")]
+        public async Task<ActionResult<string>> ActualizarClienteFarmacia([FromBody] cClienteFarmacia cliente)
+        {
+            if (cliente == null) return BadRequest("Datos inválidos");
             try
             {
-                dbConection db = new dbConection();
-                dsClienteFarmacia ndsCliente = new dsClienteFarmacia(db.sqlConection);
-
-                if (await ndsCliente.actualizarClienteFarmacia(_cliente) == true)
-                {
-                    return Ok("Cliente actualizado correctamente.");
-                }
-                else
-                {
-                    return BadRequest("No se pudo actualizar el cliente.");
-                }
+                var db = new dbConection();
+                var ds = new dsClienteFarmacia(db.sqlConection);
+                var ok = await ds.actualizarClienteFarmacia(cliente);
+                return ok ? Ok("Actualizado") : NotFound("No encontrado");
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    error = ex.Message,
-                    inner = ex.InnerException?.Message
-                });
-            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
-        //******************************************************************************************************
-        [HttpDelete]
-        [Route("borrarclienteclienteFarmacia/{Identificacion}")]
-        public async Task<ActionResult<string>> borrarClienteFarmacia(string Identificacion)
+
+        [HttpDelete("borrarClienteFarmacia/{identificacion}")]
+        public async Task<ActionResult<string>> BorrarClienteFarmacia(string identificacion)
         {
+            if (string.IsNullOrWhiteSpace(identificacion)) return BadRequest("Identificación requerida");
             try
             {
-                dbConection db = new dbConection();
-                dsClienteFarmacia ndsCliente = new dsClienteFarmacia(db.sqlConection);
-
-                cClienteFarmacia cliente = new cClienteFarmacia();
-                cliente.Identificacion = Identificacion;
-
-                if (await ndsCliente.borrarClienteFarmacia(cliente))
-                {
-                    return Ok("Cliente eliminado correctamente.");
-                }
-                else
-                {
-                    return NotFound("No se encontró un cliente con esa identificación.");
-                }
+                var db = new dbConection();
+                var ds = new dsClienteFarmacia(db.sqlConection);
+                var ok = await ds.borrarClienteFarmacia(new cClienteFarmacia { Identificacion = identificacion });
+                return ok ? Ok("Eliminado") : NotFound("No encontrado");
             }
-            catch (Exception ex)
-            {
-                return BadRequest($"Error al eliminar cliente: {ex.Message}");
-            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
-
-
-
-
-
     }
 }

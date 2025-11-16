@@ -4,9 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Edus.Share.Model;
-using Edus.Share.Service;
 using Edus.Bll.Interface;
 using Edus.Bll.Model;
 
@@ -14,124 +12,68 @@ namespace Edus.Bll.Service
 {
     public class sClienteFarmacia : IClienteFarmacia
     {
-        private string urlApi = "";
+        private readonly HttpClient _http;
+        private readonly string _base;
+        public sClienteFarmacia(HttpClient http)
+        {
+            _http = http;
+            _base = new cApiUrl().getWebApiUrl() + "api/ClienteFarmacia/";
+        }
 
-        //*********************************************************************************************
         public async Task<List<cClienteFarmacia>> getClienteFarmacia()
         {
             try
             {
-                cApiUrl mapi = new cApiUrl();
-                urlApi = mapi.getWebApiUrl().ToString().Trim() + "api/ClienteFarmacia/getClienteFarmacia";
-                var httpClient = new HttpClient();
-                var respuesta = await httpClient.GetAsync(urlApi);
-                if (respuesta.IsSuccessStatusCode)
-                {
-                    List<cClienteFarmacia> mLista = await respuesta.Content.ReadFromJsonAsync<List<cClienteFarmacia>>();
-                    return mLista;
-                }
-                else
-                {
-                    return new List<cClienteFarmacia>();
-                }
+                var lista = await _http.GetFromJsonAsync<List<cClienteFarmacia>>(_base + "getClienteFarmacia");
+                return lista ?? new List<cClienteFarmacia>();
             }
             catch (Exception ex)
             {
-                return new List<cClienteFarmacia>();
+                // Propagar o al menos registrar para que no falle silenciosamente.
+                throw new Exception("Error llamando a la API ClienteFarmacia: " + ex.Message, ex);
             }
         }
 
-        //*********************************************************************************************
         public async Task<bool> insertarClienteFarmacia(cClienteFarmacia pClienteFarmacia)
         {
             try
             {
-                cApiUrl mapi = new cApiUrl();
-                urlApi = mapi.getWebApiUrl().ToString().Trim() + "api/ClienteFarmacia/insertarClienteFarmacia";
-                var httpClient = new HttpClient();
-                var mclienteSerializado = JsonSerializer.Serialize(pClienteFarmacia);
-                HttpContent mContent = new StringContent(mclienteSerializado, Encoding.UTF8, "application/json");
-                var respuesta = await httpClient.PostAsync(urlApi, mContent);
-                if (respuesta.IsSuccessStatusCode)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                var resp = await _http.PostAsJsonAsync(_base + "insertarClienteFarmacia", pClienteFarmacia);
+                return resp.IsSuccessStatusCode;
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
         }
-        //*********************************************************************************************
+
         public async Task<bool> actualizarClienteFarmacia(cClienteFarmacia pClienteFarmacia)
         {
             try
             {
-                cApiUrl mapi = new cApiUrl();
-                urlApi = mapi.getWebApiUrl().ToString().Trim() + "api/ClienteFarmacia/actualizarClienteFarmacia";
-                var httpClient = new HttpClient();
-                var mclienteSerializado = JsonSerializer.Serialize(pClienteFarmacia);
-                HttpContent mContent = new StringContent(mclienteSerializado, Encoding.UTF8, "application/json");
-                var respuesta = await httpClient.PutAsync(urlApi, mContent);
-                if (respuesta.IsSuccessStatusCode)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                var json = JsonSerializer.Serialize(pClienteFarmacia);
+                var resp = await _http.PutAsync(_base + "actualizarClienteFarmacia",
+                    new StringContent(json, Encoding.UTF8, "application/json"));
+                return resp.IsSuccessStatusCode;
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
         }
-        //*********************************************************************************************
+
         public async Task<bool> borrarClienteFarmacia(cClienteFarmacia pClienteFarmacia)
         {
+            if (string.IsNullOrWhiteSpace(pClienteFarmacia.Identificacion)) return false;
             try
             {
-                cApiUrl mapi = new cApiUrl();
-                urlApi = mapi.getWebApiUrl().ToString().Trim() + $"api/ClienteFarmacia/borrarClienteFarmacia/";
-
-                var httpClient = new HttpClient();
-                var request = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Delete,
-                    RequestUri = new Uri(urlApi),
-                    Content = new StringContent(
-                        JsonSerializer.Serialize(pClienteFarmacia), // ✅ Corregido: era _ClienteFarmacia
-                        Encoding.UTF8,
-                        "application/json"
-                    )
-                };
-
-                var response = await httpClient.SendAsync(request);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    return true;
-                }
-                else
-                {
-                    // Opcional: Log del error
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Error al borrar cliente: {errorContent}");
-                    return false;
-                }
+                var resp = await _http.DeleteAsync(_base + $"borrarClienteFarmacia/{pClienteFarmacia.Identificacion}");
+                return resp.IsSuccessStatusCode;
             }
-            catch (Exception ex)
+            catch
             {
-                // Opcional: Log de la excepción
-                Console.WriteLine($"Excepción al borrar cliente: {ex.Message}");
                 return false;
             }
-            
         }
     }
 }
