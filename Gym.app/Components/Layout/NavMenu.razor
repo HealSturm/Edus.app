@@ -2,48 +2,37 @@
     <MudIcon Icon="@Icons.Material.Filled.Menu" />
 </MudButton>
 
-
 <MudDrawer @bind-Open="@_open" Anchor="@_anchor" Elevation="1" Variant="@DrawerVariant.Temporary" OverlayAutoClose="@_overlayAutoClose">
     <MudDrawerHeader>
         <MudText Typo="Typo.h6">Edus Farmacias</MudText>
     </MudDrawerHeader>
 
     <MudNavMenu>
-        
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/inicio" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Inicio
-            </NavLink>
-        </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/medicinas" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Medicinas
-            </NavLink>
-        </div>
+        <MudNavLink Href="/inicio" Icon="@Icons.Material.Filled.Home" Match="NavLinkMatch.All">
+            Inicio
+        </MudNavLink>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/usuarios" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Usuarios
-            </NavLink>
-        </div>
+        <MudNavLink Href="/medicinas" Icon="@Icons.Material.Filled.Medication" Match="NavLinkMatch.All">
+            Medicinas
+        </MudNavLink>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Cerrar Sesion
-            </NavLink>
-        </div>
+        <MudNavLink Href="/usuarios" Icon="@Icons.Material.Filled.Group" Match="NavLinkMatch.All">
+            Usuarios
+        </MudNavLink>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="/iniciocliente" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> iniciocliente
-            </NavLink>
-        </div>
+        <MudNavLink Href="/" Icon="@Icons.Material.Filled.ExitToApp" Match="NavLinkMatch.All">
+            Cerrar Sesión
+        </MudNavLink>
 
-        
+        <MudNavLink Href="/iniciocliente" Icon="@Icons.Material.Filled.Person" Match="NavLinkMatch.All">
+            Iniciocliente
+        </MudNavLink>
+
         <MudNavLink OnClick="_ => _open = false" Icon="@Icons.Material.Filled.Close">
             Close Drawer
         </MudNavLink>
+
         <MudNavLink Href="/admin-datos" Icon="@Icons.Material.Filled.Dashboard" Match="NavLinkMatch.Prefix">
             Panel Datos
         </MudNavLink>

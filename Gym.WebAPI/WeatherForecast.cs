@@ -2,7 +2,7 @@ namespace Gym.WebAPI
 {
     public class WeatherForecast
     {
-        public DateOnly Date { get; set; }
+        public DateOnly Dateg { get; set; }
 
         public int TemperatureC { get; set; }
 
