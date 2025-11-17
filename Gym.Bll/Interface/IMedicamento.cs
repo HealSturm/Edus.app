@@ -7,7 +7,7 @@ using Edus.Share.Model;
 
 namespace Edus.Bll.Interface
 {
-    internal interface IMedicamento
+    public interface IMedicamento
     {
         Task<bool> actualizarMedicamento(cMedicamento pMedicamento);
         Task<bool> borrarMedicamento(int IdMedicamento);

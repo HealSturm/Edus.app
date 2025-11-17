@@ -70,8 +70,8 @@
                     </MudItem>
                     <MudItem xs="12" sm="6">
                         <MudSelect T="string" @bind-Value="ClienteEdit.Estado" Label="Estado" Required="true">
-                            <MudSelectItem Value="Activo">Activo</MudSelectItem>
-                            <MudSelectItem Value="Inactivo">Inactivo</MudSelectItem>
+                            <MudSelectItem Value="@act">Activo</MudSelectItem>
+                            <MudSelectItem Value="@inAct">Inactivo</MudSelectItem>
                         </MudSelect>
                     </MudItem>
                 </MudGrid>
@@ -96,6 +96,9 @@
     private bool Guardando = false;
     private MudForm? Form;
     private DateTime? FechaNacimientoTemp;
+
+    public string act = "Activo";
+    public string inAct = "Inactivo";
 
     protected override async Task OnInitializedAsync()
     {

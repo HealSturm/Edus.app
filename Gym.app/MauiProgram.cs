@@ -29,6 +29,8 @@ namespace Gym.app
             builder.Services.AddMudServices();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(new cApiUrl().getWebApiUrl()) });
             builder.Services.AddScoped<IClienteFarmacia, sClienteFarmacia>();
+            builder.Services.AddScoped<IMedicamento, sMedicamento>();
+
 
             return builder.Build();
         }
