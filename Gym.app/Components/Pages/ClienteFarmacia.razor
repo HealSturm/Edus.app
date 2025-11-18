@@ -9,11 +9,12 @@
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
     <MudStack Spacing="4">
         <MudPaper Class="p-4" Elevation="2">
-            <MudStack Direction="Row" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
-                <MudText Typo="Typo.h5" Color="Color.Primary">Clientes Farmacia</MudText>
-                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="NuevoCliente">
+            <!-- Encabezado: botón arriba a la izquierda y título centrado -->
+            <MudStack Spacing="2">
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="NuevoCliente" Style="align-self:flex-start">
                     <MudIcon Icon="@Icons.Material.Filled.Add" />&nbsp;Nuevo
                 </MudButton>
+                <MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Primary">Clientes Farmacia</MudText>
             </MudStack>
 
             <MudTable Items="Clientes" Hover="true" Dense="true" RowClick="OnRowClick">
@@ -36,8 +37,12 @@
                         </MudChip>
                     </MudTd>
                     <MudTd>
-                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" Size="Size.Small" OnClick="@(()=>Editar(context))" />
-                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Size="Size.Small" OnClick="@(()=>ConfirmarEliminar(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Primary" Size="Size.Small"
+                                       OnClick="@(()=> EditarAsync(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Error" Size="Size.Small"
+                                       OnClick="@(()=>ConfirmarEliminar(context))" />
                     </MudTd>
                 </RowTemplate>
                 <NoRecordsContent>
@@ -46,46 +51,52 @@
             </MudTable>
         </MudPaper>
 
-        <MudPaper Class="p-4" Elevation="2">
-            <MudText Typo="Typo.h6" Class="mb-2">
-                @(EsNuevo ? "Agregar Cliente" : "Editar Cliente")
-            </MudText>
+        @if (MostrarFormulario)
+        {
+            <MudPaper Class="p-4" Elevation="2">
+                <MudText Typo="Typo.h6" Class="mb-2">
+                    @(EsNuevo ? "Agregar Cliente" : "Editar Cliente")
+                </MudText>
 
-            <MudForm @ref="Form">
-                <MudGrid>
-                    <MudItem xs="12" sm="6">
-                        <MudTextField @bind-Value="ClienteEdit.Identificacion" Label="Identificación" Required="true" Disabled="!EsNuevo" />
-                    </MudItem>
-                    <MudItem xs="12" sm="6">
-                        <MudTextField @bind-Value="ClienteEdit.Nombre" Label="Nombre" Required="true" />
-                    </MudItem>
-                    <MudItem xs="12" sm="6">
-                        <MudDatePicker @bind-Date="FechaNacimientoTemp" Label="Fecha Nacimiento" Required="true" />
-                    </MudItem>
-                    <MudItem xs="12" sm="6">
-                        <MudTextField @bind-Value="ClienteEdit.Telefono" Label="Teléfono" />
-                    </MudItem>
-                    <MudItem xs="12" sm="6">
-                        <MudTextField @bind-Value="ClienteEdit.Email" Label="Email" />
-                    </MudItem>
-                    <MudItem xs="12" sm="6">
-                        <MudSelect T="string" @bind-Value="ClienteEdit.Estado" Label="Estado" Required="true">
-                            <MudSelectItem Value="@act">Activo</MudSelectItem>
-                            <MudSelectItem Value="@inAct">Inactivo</MudSelectItem>
-                        </MudSelect>
-                    </MudItem>
-                </MudGrid>
+                <MudForm @ref="Form">
+                    <MudGrid>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField @bind-Value="ClienteEdit.Identificacion"
+                                          Label="Identificación" Required="true"
+                                          Disabled="!EsNuevo"
+                                          @ref="IdentificacionInput" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField @bind-Value="ClienteEdit.Nombre" Label="Nombre" Required="true" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudDatePicker @bind-Date="FechaNacimientoTemp" Label="Fecha Nacimiento" Required="true" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField @bind-Value="ClienteEdit.Telefono" Label="Teléfono" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField @bind-Value="ClienteEdit.Email" Label="Email" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="string" @bind-Value="ClienteEdit.Estado" Label="Estado" Required="true">
+                                <MudSelectItem Value="@act">Activo</MudSelectItem>
+                                <MudSelectItem Value="@inAct">Inactivo</MudSelectItem>
+                            </MudSelect>
+                        </MudItem>
+                    </MudGrid>
 
-                <MudStack Direction="Row" Spacing="2" Class="mt-4">
-                    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Guardar" Disabled="@Guardando">
-                        @(Guardando ? "Guardando..." : "Guardar")
-                    </MudButton>
-                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="CancelarEdicion" Disabled="@Guardando">
-                        Cancelar
-                    </MudButton>
-                </MudStack>
-            </MudForm>
-        </MudPaper>
+                    <MudStack Direction="Row" Spacing="2" Class="mt-4">
+                        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="Guardar" Disabled="@Guardando">
+                            @(Guardando ? "Guardando..." : "Guardar")
+                        </MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="CancelarEdicion" Disabled="@Guardando">
+                            Cancelar
+                        </MudButton>
+                    </MudStack>
+                </MudForm>
+            </MudPaper>
+        }
     </MudStack>
 </MudContainer>
 
@@ -96,6 +107,9 @@
     private bool Guardando = false;
     private MudForm? Form;
     private DateTime? FechaNacimientoTemp;
+    private bool MostrarFormulario = false;
+
+    private MudTextField<string>? IdentificacionInput;
 
     public string act = "Activo";
     public string inAct = "Inactivo";
@@ -103,7 +117,7 @@
     protected override async Task OnInitializedAsync()
     {
         await CargarClientes();
-        NuevoCliente();
+        MostrarFormulario = false;
     }
 
     private async Task CargarClientes()
@@ -118,7 +132,7 @@
         }
     }
 
-    private void NuevoCliente()
+    private async Task NuevoCliente()
     {
         EsNuevo = true;
         ClienteEdit = new cClienteFarmacia
@@ -127,9 +141,15 @@
             Estado = "Activo"
         };
         FechaNacimientoTemp = ClienteEdit.FechaNacimiento;
+        MostrarFormulario = true;
+
+        await InvokeAsync(StateHasChanged);
+        await Task.Yield();
+        if (IdentificacionInput is not null)
+            await IdentificacionInput.FocusAsync();
     }
 
-    private void Editar(cClienteFarmacia cliente)
+    private async Task EditarAsync(cClienteFarmacia cliente)
     {
         EsNuevo = false;
         ClienteEdit = new cClienteFarmacia
@@ -142,6 +162,12 @@
             Estado = cliente.Estado
         };
         FechaNacimientoTemp = ClienteEdit.FechaNacimiento;
+        MostrarFormulario = true;
+
+        await InvokeAsync(StateHasChanged);
+        await Task.Yield();
+        if (IdentificacionInput is not null)
+            await IdentificacionInput.FocusAsync();
     }
 
     private async Task Guardar()
@@ -166,7 +192,7 @@
             {
                 Snackbar.Add(EsNuevo ? "Cliente agregado" : "Cliente actualizado", Severity.Success);
                 await CargarClientes();
-                NuevoCliente();
+                MostrarFormulario = false;
             }
             else
             {
@@ -183,7 +209,13 @@
         }
     }
 
-    private void CancelarEdicion() => NuevoCliente();
+    private void CancelarEdicion()
+    {
+        MostrarFormulario = false;
+        ClienteEdit = new();
+        FechaNacimientoTemp = null;
+        EsNuevo = true;
+    }
 
     private async Task ConfirmarEliminar(cClienteFarmacia cliente)
     {
@@ -202,8 +234,9 @@
             {
                 Snackbar.Add("Cliente eliminado", Severity.Success);
                 await CargarClientes();
-                if (!EsNuevo && ClienteEdit.Identificacion == cliente.Identificacion)
-                    NuevoCliente();
+
+                if (MostrarFormulario && !EsNuevo && ClienteEdit.Identificacion == cliente.Identificacion)
+                    MostrarFormulario = false;
             }
             else
             {
@@ -216,5 +249,6 @@
         }
     }
 
-    private void OnRowClick(TableRowClickEventArgs<cClienteFarmacia> args) => Editar(args.Item);
+    private async Task OnRowClick(TableRowClickEventArgs<cClienteFarmacia> args)
+        => await EditarAsync(args.Item);
 }
