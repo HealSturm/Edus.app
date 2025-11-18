@@ -1,0 +1,7 @@
+<ItemGroup>
+  <!-- Ícono de la app -->
+  <MauiIcon Include="Resources\AppIcon\logo.png" />
+
+  <!-- (Opcional) Pantalla de splash personalizada -->
+  <MauiSplashScreen Include="Resources\Splash\splash.png" Color="#FFFFFF" />
+</ItemGroup>

@@ -2,6 +2,8 @@
 @using Edus.Share.Model
 @using Edus.Bll.Interface
 @using Edus.Share
+@using System.ComponentModel.DataAnnotations
+@using System.Text.RegularExpressions
 @inject IClienteFarmacia ClienteService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
@@ -9,7 +11,7 @@
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
     <MudStack Spacing="4">
         <MudPaper Class="p-4" Elevation="2">
-          
+
             <MudStack Spacing="2">
                 <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="NuevoCliente" Style="align-self:flex-start">
                     <MudIcon Icon="@Icons.Material.Filled.Add" />&nbsp;Nuevo
@@ -46,7 +48,14 @@
                     </MudTd>
                 </RowTemplate>
                 <NoRecordsContent>
-                    <MudText>No hay clientes registrados.</MudText>
+                    @if (ErrorCarga)
+                    {
+                        <MudText Color="Color.Error">No se han cargado los datos revisa que tambien estes usando el Web Api</MudText>
+                    }
+                    else
+                    {
+                        <MudText>No hay clientes registrados.</MudText>
+                    }
                 </NoRecordsContent>
             </MudTable>
         </MudPaper>
@@ -58,28 +67,47 @@
                     @(EsNuevo ? "Agregar Cliente" : "Editar Cliente")
                 </MudText>
 
-                <MudForm @ref="Form">
+                <MudForm @ref="Form" Model="@ClienteEdit" ValidationDelay="0">
                     <MudGrid>
                         <MudItem xs="12" sm="6">
                             <MudTextField @bind-Value="ClienteEdit.Identificacion"
-                                          Label="Identificación" Required="true"
+                                          Label="Identificación"
+                                          Required="true"
+                                          RequiredError="La identificación es requerida"
                                           Disabled="!EsNuevo"
+                                          Validation="@(new Func<string, string>(ValidarIdentificacion))"
                                           @ref="IdentificacionInput" />
                         </MudItem>
                         <MudItem xs="12" sm="6">
-                            <MudTextField @bind-Value="ClienteEdit.Nombre" Label="Nombre" Required="true" />
+                            <MudTextField @bind-Value="ClienteEdit.Nombre"
+                                          Label="Nombre"
+                                          Required="true"
+                                          RequiredError="El nombre es requerido"
+                                          Validation="@(new Func<string, string>(ValidarNombre))" />
                         </MudItem>
                         <MudItem xs="12" sm="6">
-                            <MudDatePicker @bind-Date="FechaNacimientoTemp" Label="Fecha Nacimiento" Required="true" />
+                            <MudDatePicker @bind-Date="FechaNacimientoTemp"
+                                           Label="Fecha Nacimiento"
+                                           Required="true"
+                                           RequiredError="La fecha de nacimiento es requerida"
+                                           MaxDate="DateTime.Today"
+                                           Validation="@(new Func<DateTime?, string>(ValidarFechaNacimiento))" />
                         </MudItem>
                         <MudItem xs="12" sm="6">
-                            <MudTextField @bind-Value="ClienteEdit.Telefono" Label="Teléfono" />
+                            <MudTextField @bind-Value="ClienteEdit.Telefono"
+                                          Label="Teléfono"
+                                          Validation="@(new Func<string, string>(ValidarTelefono))" />
                         </MudItem>
                         <MudItem xs="12" sm="6">
-                            <MudTextField @bind-Value="ClienteEdit.Email" Label="Email" />
+                            <MudTextField @bind-Value="ClienteEdit.Email"
+                                          Label="Email"
+                                          Validation="@(new Func<string, string>(ValidarEmail))" />
                         </MudItem>
                         <MudItem xs="12" sm="6">
-                            <MudSelect T="string" @bind-Value="ClienteEdit.Estado" Label="Estado" Required="true">
+                            <MudSelect T="string" @bind-Value="ClienteEdit.Estado"
+                                       Label="Estado"
+                                       Required="true"
+                                       RequiredError="El estado es requerido">
                                 <MudSelectItem Value="@act">Activo</MudSelectItem>
                                 <MudSelectItem Value="@inAct">Inactivo</MudSelectItem>
                             </MudSelect>
@@ -108,6 +136,7 @@
     private MudForm? Form;
     private DateTime? FechaNacimientoTemp;
     private bool MostrarFormulario = false;
+    private bool ErrorCarga = false; // Indicador de fallo al cargar
 
     private MudTextField<string>? IdentificacionInput;
 
@@ -125,9 +154,11 @@
         try
         {
             Clientes = await ClienteService.getClienteFarmacia();
+            ErrorCarga = false;
         }
         catch (Exception ex)
         {
+            ErrorCarga = true;
             Snackbar.Add($"Error cargando clientes: {ex.Message}", Severity.Error);
         }
     }
@@ -173,13 +204,26 @@
     private async Task Guardar()
     {
         await Form!.Validate();
-        if (!Form.IsValid) return;
+
+        if (!Form.IsValid)
+        {
+            Snackbar.Add("Por favor corrija los errores en el formulario", Severity.Warning);
+            return;
+        }
+
         if (FechaNacimientoTemp is null)
         {
             Snackbar.Add("Seleccione fecha de nacimiento", Severity.Warning);
             return;
         }
+
         ClienteEdit.FechaNacimiento = FechaNacimientoTemp.Value;
+
+        if (EsNuevo && Clientes.Any(c => c.Identificacion == ClienteEdit.Identificacion))
+        {
+            Snackbar.Add("Ya existe un cliente con esta identificación", Severity.Warning);
+            return;
+        }
 
         Guardando = true;
         try
@@ -190,7 +234,7 @@
 
             if (ok)
             {
-                Snackbar.Add(EsNuevo ? "Cliente agregado" : "Cliente actualizado", Severity.Success);
+                Snackbar.Add(EsNuevo ? "Cliente agregado correctamente" : "Cliente actualizado correctamente", Severity.Success);
                 await CargarClientes();
                 MostrarFormulario = false;
             }
@@ -232,7 +276,7 @@
             bool ok = await ClienteService.borrarClienteFarmacia(new cClienteFarmacia { Identificacion = cliente.Identificacion });
             if (ok)
             {
-                Snackbar.Add("Cliente eliminado", Severity.Success);
+                Snackbar.Add("Cliente eliminado correctamente", Severity.Success);
                 await CargarClientes();
 
                 if (MostrarFormulario && !EsNuevo && ClienteEdit.Identificacion == cliente.Identificacion)
@@ -240,7 +284,7 @@
             }
             else
             {
-                Snackbar.Add("No se pudo eliminar", Severity.Warning);
+                Snackbar.Add("No se pudo eliminar el cliente", Severity.Warning);
             }
         }
         catch (Exception ex)
@@ -251,4 +295,89 @@
 
     private async Task OnRowClick(TableRowClickEventArgs<cClienteFarmacia> args)
         => await EditarAsync(args.Item);
+
+    private string ValidarIdentificacion(string identificacion)
+    {
+        if (string.IsNullOrWhiteSpace(identificacion))
+            return "La identificación es requerida";
+
+        if (identificacion.Length < 5)
+            return "La identificación debe tener al menos 5 caracteres";
+
+        if (identificacion.Length > 20)
+            return "La identificación no puede exceder 20 caracteres";
+
+        return null;
+    }
+
+    private string ValidarNombre(string nombre)
+    {
+        if (string.IsNullOrWhiteSpace(nombre))
+            return "El nombre es requerido";
+
+        if (nombre.Length < 3)
+            return "El nombre debe tener al menos 3 caracteres";
+
+        if (nombre.Length > 100)
+            return "El nombre no puede exceder 100 caracteres";
+
+        if (!Regex.IsMatch(nombre, @"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$"))
+            return "El nombre solo puede contener letras y espacios";
+
+        return null;
+    }
+
+    private string ValidarFechaNacimiento(DateTime? fecha)
+    {
+        if (fecha is null)
+            return "La fecha de nacimiento es requerida";
+
+        if (fecha.Value > DateTime.Today)
+            return "La fecha de nacimiento no puede ser futura";
+
+        var edad = DateTime.Today.Year - fecha.Value.Year;
+        if (fecha.Value.Date > DateTime.Today.AddYears(-edad)) edad--;
+
+        if (edad < 0)
+            return "La fecha de nacimiento no es válida";
+
+        if (edad > 120)
+            return "La fecha de nacimiento no parece válida (edad mayor a 120 años)";
+
+        return null;
+    }
+
+    private string ValidarTelefono(string telefono)
+    {
+        if (string.IsNullOrWhiteSpace(telefono))
+            return null;
+
+        var telefonoLimpio = Regex.Replace(telefono, @"[\s\-\(\)]", "");
+
+        if (telefonoLimpio.Length < 8)
+            return "El teléfono debe tener al menos 8 dígitos";
+
+        if (telefonoLimpio.Length > 15)
+            return "El teléfono no puede exceder 15 dígitos";
+
+        if (!Regex.IsMatch(telefono, @"^[\d\s\-\(\)\+]+$"))
+            return "El teléfono solo puede contener números, espacios, guiones, paréntesis y el símbolo +";
+
+        return null;
+    }
+
+    private string ValidarEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return null;
+
+        if (email.Length > 100)
+            return "El email no puede exceder 100 caracteres";
+
+        var emailRegex = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+        if (!Regex.IsMatch(email, emailRegex))
+            return "El formato del email no es válido";
+
+        return null;
+    }
 }
