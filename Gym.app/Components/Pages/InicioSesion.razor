@@ -52,7 +52,6 @@
             var svc = new dbFBUsuarios();
             var usuarios = await svc.getUsuariosAsync();
 
-            // Buscar por email o por nombre
             var usuario = usuarios.FirstOrDefault(u =>
                 (!string.IsNullOrWhiteSpace(u.Email) && u.Email.Equals(_username, StringComparison.OrdinalIgnoreCase))
                 || (!string.IsNullOrWhiteSpace(u.Nombre) && u.Nombre.Equals(_username, StringComparison.OrdinalIgnoreCase)));
@@ -64,22 +63,8 @@
                 return;
             }
 
-            // if (!string.Equals(usuario.Estado, "Activo", StringComparison.OrdinalIgnoreCase))
-            // {
-            //     Snackbar.Add("Cuenta inactiva. Contacte al administrador.", Severity.Error);
-            //     return;
-            // }
-
-            // Redirigir según rol
-            if (string.Equals(usuario.Role, "admin", StringComparison.OrdinalIgnoreCase))
-            {
-                Navigation.NavigateTo("/inicio", forceLoad: false);
-            }
-            else
-            {
-                // cliente u otros roles
-                Navigation.NavigateTo("/iniciocliente", forceLoad: false);
-            }
+          
+            Navigation.NavigateTo("/inicio", forceLoad: false);
         }
         catch (Exception ex)
         {

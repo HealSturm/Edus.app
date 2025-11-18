@@ -1,33 +1,178 @@
 ﻿@page "/inicio"
-@using Edus.Bll.Interface
-@using Edus.Share.Model
-@inject ISnackbar sb;
-@inject NavigationManager NavigationManager
+@using MudBlazor
+@inject NavigationManager Nav
 
+<!-- Página de bienvenida para nuevos administradores -->
+<MudContainer MaxWidth="MaxWidth.False" Class="pa-0" Style="min-height:100vh; display:flex; flex-direction:column;">
 
-<MudContainer  Style="height:100vh; width: 100%; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-    <MudImage Src="Images/logo.png" Alt="Logo" Style="width:20rem"  Class="mb-4" />
-
-    <MudStack Spacing="2" Style="height:100vh; width: 100%;" Class="d-flex justify-center align-center">
-
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width: 90%; height:5rem; display:flex; flex-direction:row; justify-content:start; margin-bottom:2rem" OnClick="@(() => NavigationManager.NavigateTo("/medicinas"))">
-            <MudIcon Icon="@Icons.Material.Filled.Medication" Size="Size.Large" Style="margin-left:1rem"></MudIcon>
-            <span Style="margin-left:1rem"></span>
-                Medicinas
+    <!-- HERO -->
+    <MudPaper Elevation="0" Class="d-flex flex-column align-center justify-center" Style="background:linear-gradient(135deg,#0D47A1,#1976D2); color:white; padding:4rem 2rem;">
+        <MudImage Src="Images/logo.png" Alt="Logo Edus Farmacias" Style="max-width:180px;" Class="mb-4" />
+        <MudText Typo="Typo.h3" Class="text-center">Bienvenido/a a Edus Farmacias</MudText>
+        <MudText Typo="Typo.subtitle1" Class="mt-2 text-center" Style="max-width:780px;">
+            Plataforma integral para la gestión inteligente de medicamentos, clientes y trazabilidad clínica.
+            Centralizamos datos y procesos para mejorar la salud y la operación de tu farmacia.
+        </MudText>
+        <MudStack Direction="Row" Spacing="2" Class="mt-4">
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@(() => Nav.NavigateTo("/medicinas"))" StartIcon="@Icons.Material.Filled.Medication">
+                Gestionar Medicamentos
             </MudButton>
-
-
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width: 90%; height:5rem; display:flex; flex-direction:row; justify-content:start" OnClick="@(() => NavigationManager.NavigateTo("/usuarios"))">
-
-            <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Size="Size.Large" Style="margin-left:1rem"></MudIcon>
-            <span Style="margin-left:1rem"></span>
-                Clientes
+            <MudButton Color="Color.Secondary" Variant="Variant.Outlined" OnClick="@(() => Nav.NavigateTo("/iniciocliente"))" StartIcon="@Icons.Material.Filled.Group">
+                Gestionar Clientes
             </MudButton>
-
+            <MudButton Color="Color.Tertiary" Variant="Variant.Outlined" OnClick="@(() => Nav.NavigateTo("/usuarios"))" StartIcon="@Icons.Material.Filled.AdminPanelSettings">
+                Usuarios / Roles
+            </MudButton>
         </MudStack>
-    
+    </MudPaper>
+
+    <!-- SECCIÓN VALOR -->
+    <MudContainer Class="mt-6">
+        <MudText Typo="Typo.h5" Class="mb-3">¿Qué te ofrece Edus Farmacias?</MudText>
+        <MudGrid GutterSize="3">
+            <MudItem xs="12" md="4">
+                <MudCard Elevation="6" Class="h-100">
+                    <MudCardHeader>
+                        <MudAvatar Icon="@Icons.Material.Filled.Medication" Color="Color.Primary" />
+                        <MudText Typo="Typo.subtitle1" Class="ml-2">Control de Inventario Médico</MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        Actualiza, clasifica y supervisa tus medicamentos con trazabilidad y estado (activo/inactivo).
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudCard Elevation="6" Class="h-100">
+                    <MudCardHeader>
+                        <MudAvatar Icon="@Icons.Material.Filled.PersonSearch" Color="Color.Secondary" />
+                        <MudText Typo="Typo.subtitle1" Class="ml-2">Gestión de Clientes</MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        Registra datos clínicos esenciales y mantiene un historial limpio para mejor seguimiento terapéutico.
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudCard Elevation="6" Class="h-100">
+                    <MudCardHeader>
+                        <MudAvatar Icon="@Icons.Material.Filled.Security" Color="Color.Info" />
+                        <MudText Typo="Typo.subtitle1" Class="ml-2">Seguridad y Gobierno</MudText>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        Roles claros y separación de responsabilidades para minimizar errores y accesos indebidos.
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+
+    <!-- MISIÓN / VISIÓN -->
+    <MudContainer Class="mt-8">
+        <MudGrid>
+            <MudItem xs="12" md="6">
+                <MudPaper Elevation="2" Class="p-4">
+                    <MudText Typo="Typo.h6">Nuestra Misión</MudText>
+                    <MudText Typo="Typo.body2" Class="mt-2">
+                        Digitalizar la operación farmacéutica, reduciendo tiempos administrativos y mejorando la precisión en la
+                        dispensación de medicamentos para impactar positivamente la salud de la comunidad.
+                    </MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudPaper Elevation="2" Class="p-4">
+                    <MudText Typo="Typo.h6">Nuestra Visión</MudText>
+                    <MudText Typo="Typo.body2" Class="mt-2">
+                        Ser el ecosistema líder en gestión farmacéutica inteligente y conectada, facilitando decisiones basadas en datos.
+                    </MudText>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+
+    <!-- MÉTRICAS / INDICADORES (simulados) -->
+    <MudContainer Class="mt-8">
+        <MudText Typo="Typo.h5" Class="mb-3">Indicadores Clave</MudText>
+        <MudGrid GutterSize="2">
+            <MudItem xs="6" md="3">
+                <MudPaper Elevation="3" Class="p-3 d-flex flex-column align-center">
+                    <MudText Typo="Typo.subtitle1">+120</MudText>
+                    <MudText Typo="Typo.caption">Medicamentos activos</MudText>
+                    <MudProgressLinear Color="Color.Primary" Value="75" Class="mt-1" />
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6" md="3">
+                <MudPaper Elevation="3" Class="p-3 d-flex flex-column align-center">
+                    <MudText Typo="Typo.subtitle1">+300</MudText>
+                    <MudText Typo="Typo.caption">Clientes registrados</MudText>
+                    <MudProgressLinear Color="Color.Secondary" Value="60" Class="mt-1" />
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6" md="3">
+                <MudPaper Elevation="3" Class="p-3 d-flex flex-column align-center">
+                    <MudText Typo="Typo.subtitle1">98%</MudText>
+                    <MudText Typo="Typo.caption">Disponibilidad</MudText>
+                    <MudProgressLinear Color="Color.Success" Value="98" Class="mt-1" />
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="6" md="3">
+                <MudPaper Elevation="3" Class="p-3 d-flex flex-column align-center">
+                    <MudText Typo="Typo.subtitle1">24/7</MudText>
+                    <MudText Typo="Typo.caption">Acceso seguro</MudText>
+                    <MudProgressLinear Color="Color.Info" Value="100" Class="mt-1" />
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+
+    <!-- PASOS PARA COMENZAR -->
+    <MudContainer Class="mt-8">
+        <MudText Typo="Typo.h5" Class="mb-3">Primeros Pasos</MudText>
+        <MudTimeline>
+            <MudTimelineItem Icon="@Icons.Material.Filled.VerifiedUser" Color="Color.Primary">
+                Configura tus usuarios y roles para delimitar responsabilidades.
+            </MudTimelineItem>
+            <MudTimelineItem Icon="@Icons.Material.Filled.MedicalServices" Color="Color.Secondary">
+                Registra o importa el catálogo de medicamentos básicos.
+            </MudTimelineItem>
+            <MudTimelineItem Icon="@Icons.Material.Filled.People" Color="Color.Info">
+                Agrega clientes y asocia tratamientos o historiales.
+            </MudTimelineItem>
+            <MudTimelineItem Icon="@Icons.Material.Filled.Insights" Color="Color.Success">
+                Analiza métricas y ajusta tus procesos operativos.
+            </MudTimelineItem>
+        </MudTimeline>
+    </MudContainer>
+
+    <!-- LLAMADO A LA ACCIÓN FINAL -->
+    <MudContainer Class="mt-6 mb-8">
+        <MudPaper Elevation="4" Class="p-4 d-flex flex-column flex-md-row align-center justify-space-between">
+            <MudText Typo="Typo.subtitle1" Class="mb-2 mb-md-0">
+                ¿Listo para empezar? Optimiza la gestión hoy mismo.
+            </MudText>
+            <MudStack Direction="Row" Spacing="2">
+                <MudButton Color="Color.Primary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Medication"
+                           OnClick="@(()=>Nav.NavigateTo("/medicinas"))">
+                    Medicamentos
+                </MudButton>
+                <MudButton Color="Color.Secondary" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Group"
+                           OnClick="@(()=>Nav.NavigateTo("/iniciocliente"))">
+                    Clientes
+                </MudButton>
+                <MudButton Color="Color.Info" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.AdminPanelSettings"
+                           OnClick="@(()=>Nav.NavigateTo("/usuarios"))">
+                    Usuarios
+                </MudButton>
+            </MudStack>
+        </MudPaper>
+    </MudContainer>
+
+    <!-- FOOTER -->
+    <MudPaper Elevation="0" Class="py-4 text-center" Style="margin-top:auto; background:#f5f5f5;">
+        <MudText Typo="Typo.caption">© @DateTime.Now.Year Edus Farmacias · Plataforma de Gestión Farmacéutica</MudText>
+    </MudPaper>
+
 </MudContainer>
 
 @code {
-   
+    // Aquí podrías reemplazar métricas simuladas por datos reales en el futuro.
 }
