@@ -3,6 +3,7 @@
 @using Edus.Bll.Interface
 @inject IMedicamento mdsMedicamento 
 @inject ISnackbar Snackbar
+@inject NavigationManager navigationManager  
 
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
     <MudPaper Class="p-4" Elevation="2">
@@ -10,16 +11,26 @@
 
         <MudTable Items="Medicamentos" Hover="true" Dense="true">
             <HeaderContent>
-                <MudTh>ID</MudTh>
                 <MudTh>Descripción</MudTh>
                 <MudTh>Presentación</MudTh>
                 <MudTh>Indicaciones</MudTh>
+                <MudTh>Editar</MudTh>
+                <MudTh>Eliminar</MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd DataLabel="ID">@context.IdMedicamento</MudTd>
                 <MudTd DataLabel="Descripción">@context.Descripcion</MudTd>
                 <MudTd DataLabel="Presentación">@context.Presentacion</MudTd>
                 <MudTd DataLabel="Indicaciones">@context.Indicaciones</MudTd>
+               <MudTd DataLabel="Editar">
+                    <MudButton Color="Color.Primary" Variant="Variant.Text" OnClick="@(() => EditarMedicamento(context.IdMedicamento))">
+                        <MudIcon Icon="@Icons.Material.Filled.Edit" />
+                    </MudButton>
+                </MudTd>
+                <MudTd DataLabel="Eliminar">
+                    <MudButton Color="Color.Error" Variant="Variant.Text" OnClick="@(() => EliminarMedicamento(context.IdMedicamento))">
+                        <MudIcon Icon="@Icons.Material.Filled.Delete" />
+                    </MudButton>
+                </MudTd>
             </RowTemplate>
             <NoRecordsContent>
                 <MudText>No hay medicamentos registrados.</MudText>
@@ -47,4 +58,31 @@
             Snackbar.Add($"Error al cargar medicamentos: {ex.Message}", Severity.Error);
         }
     }
+
+    private async Task EliminarMedicamento(int idMedicamento)
+    {
+        try
+        {
+            var resultado = await mdsMedicamento.borrarMedicamento(idMedicamento);
+            if (resultado)
+            {
+                Snackbar.Add("Medicamento eliminado correctamente.", Severity.Success);
+                await CargarMedicamentos(); 
+            }
+            else
+            {
+                Snackbar.Add("No se pudo eliminar el medicamento.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+        Snackbar.Add($"Error al eliminar: {ex.Message}", Severity.Error);
+        }
+    }
+
+     private void EditarMedicamento(int idMedicamento)
+    {
+        navigationManager.NavigateTo($"/editar-medicina/{idMedicamento}");
+    }
+
 }
