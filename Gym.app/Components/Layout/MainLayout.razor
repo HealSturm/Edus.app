@@ -1,23 +1,42 @@
 ﻿@inherits LayoutComponentBase
 @using Gym.app.Theme
+@using MudBlazor
+@inject ThemeState Theme
 
+<CascadingValue Value="Theme">
+    <MudThemeProvider Theme="@CustomTheme.LightTheme" IsDarkMode="@Theme.IsDark" />
 
-<MudThemeProvider/>
-<MudThemeProvider Theme="@CustomTheme.LightTheme" />
+    <MudPopoverProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
 
-<MudPopoverProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
+    <div class="page">
+        <div class="sidebar">
+            <NavMenu />
+        </div>
 
-
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
+        <main>
+            <article class="content px-4">
+                @Body
+            </article>
+        </main>
     </div>
+</CascadingValue>
 
-    <main>
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+@code {
+    protected override void OnInitialized()
+    {
+        Theme.OnChanged += OnThemeChanged;
+    }
+
+    private void OnThemeChanged()
+    {
+        // Re-render para aplicar el nuevo tema
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        Theme.OnChanged -= OnThemeChanged;
+    }
+}

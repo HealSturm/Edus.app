@@ -38,7 +38,8 @@ namespace Edus.Share.Service
                   FechaNacimiento,
                   Telefono,
                   Email,
-                  Estado
+                  Estado,
+                  Password
                FROM ClienteFarmacia";
 
                 var result = await db.QueryAsync<cClienteFarmacia>(sql);
@@ -57,9 +58,9 @@ namespace Edus.Share.Service
                 using var db = dbcon();
 
                 string sql = @"INSERT INTO ClienteFarmacia
-                       ( Identificacion, Nombre, FechaNacimiento, Telefono, Email, Estado)
+                       ( Identificacion, Nombre, FechaNacimiento, Telefono, Email, Estado, Password)
                        VALUES
-                       ( @Identificacion, @Nombre, @FechaNacimiento, @Telefono, @Email, @Estado)";
+                       ( @Identificacion, @Nombre, @FechaNacimiento, @Telefono, @Email, @Estado, @Password)";
 
                 var result = await db.ExecuteAsync(sql, new
                 {
@@ -69,7 +70,8 @@ namespace Edus.Share.Service
                     _ClienteFarmacia.FechaNacimiento,
                     _ClienteFarmacia.Telefono,
                     _ClienteFarmacia.Email,
-                    _ClienteFarmacia.Estado
+                    _ClienteFarmacia.Estado,
+                    _ClienteFarmacia.Password
                 });
 
                 return result > 0; // true si se insertó al menos un registro

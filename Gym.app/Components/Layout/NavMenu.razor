@@ -1,10 +1,17 @@
-﻿<MudButton Variant="Variant.Text" OnClick="@(() => OpenDrawer(Anchor.Start))">
+﻿@using MudBlazor
+
+<MudButton Variant="Variant.Text" OnClick="@(() => OpenDrawer(Anchor.Start))">
     <MudIcon Icon="@Icons.Material.Filled.Menu" />
 </MudButton>
 
 <MudDrawer @bind-Open="@_open" Anchor="@_anchor" Elevation="1" Variant="@DrawerVariant.Temporary" OverlayAutoClose="@_overlayAutoClose">
     <MudDrawerHeader>
-        <MudText Typo="Typo.h6">Edus Farmacias</MudText>
+        <MudStack Direction="Row" AlignItems="@AlignItems.Center" Spacing="1" Class="w-100">
+            <MudText Typo="Typo.h6" Class="mr-auto">Edus Farmacias</MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.LightMode" Size="Size.Small" Title="Claro" OnClick="@(() => Theme?.SetLight())" />
+            <MudIconButton Icon="@Icons.Material.Filled.DarkMode" Size="Size.Small" Title="Oscuro" OnClick="@(() => Theme?.SetDark())" />
+            <MudIconButton Icon="@Icons.Material.Filled.SettingsBrightness" Size="Size.Small" Title="Sistema" OnClick="@(() => Theme?.SetSystem())" />
+        </MudStack>
     </MudDrawerHeader>
 
     <MudNavMenu>
@@ -33,6 +40,8 @@
 </MudDrawer>
 
 @code {
+    [CascadingParameter] public Gym.app.Theme.ThemeState? Theme { get; set; }
+
     private bool _open;
     private Anchor _anchor;
     private bool _overlayAutoClose = true;

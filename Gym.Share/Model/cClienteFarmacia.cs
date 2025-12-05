@@ -15,6 +15,7 @@ namespace Edus.Share.Model
         public string Telefono { get; set; }           // Número de teléfono
         public string Email { get; set; }              // Correo electrónico
         public string Estado { get; set; }             // Activo / Inactivo 
+        public string Password { get; set; }          // Contraseña del cliente
 
         public cClienteFarmacia()
         {
@@ -25,6 +26,7 @@ namespace Edus.Share.Model
             Telefono = string.Empty;
             Email = string.Empty;
             Estado = string.Empty;
+            Password = string.Empty;
         }
     }
 

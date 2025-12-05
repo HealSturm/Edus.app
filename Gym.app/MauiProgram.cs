@@ -2,9 +2,9 @@
 using Edus.Bll.Model;
 using Edus.Bll.Service;
 using Edus.Share.Model;
-
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging; 
 using MudBlazor.Services;
+using Gym.app.Theme;
 
 
 namespace Gym.app
@@ -23,10 +23,11 @@ namespace Gym.app
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices();
+            builder.Services.AddSingleton<ThemeState>();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(new cApiUrl().getWebApiUrl()) });
             builder.Services.AddScoped<IClienteFarmacia, sClienteFarmacia>();
             builder.Services.AddScoped<IMedicamento, sMedicamento>();
