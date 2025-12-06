@@ -12,7 +12,7 @@ namespace Edus.app.Data.Services
 {
     public class dbFBUsuarios
     {
-        private string fbUrl = "https://edusprogra5-default-rtdb.europe-west1.firebasedatabase.app/";
+        private string fbUrl = "https://edus-2ed8d-default-rtdb.firebaseio.com/";
 
         
 
