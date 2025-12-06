@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 using Gym.app.Theme;
 using Microsoft.Maui.Storage;
+using Edus.app.Data.Services;
 
 namespace Gym.app
 {
@@ -40,6 +41,7 @@ namespace Gym.app
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(new cApiUrl().getWebApiUrl()) });
             builder.Services.AddScoped<IClienteFarmacia, sClienteFarmacia>();
             builder.Services.AddScoped<IMedicamento, sMedicamento>();
+          
 
             return builder.Build();
         }

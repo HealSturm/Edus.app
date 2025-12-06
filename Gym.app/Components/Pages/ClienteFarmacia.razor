@@ -50,11 +50,12 @@
                 <NoRecordsContent>
                     @if (ErrorCarga)
                     {
-                        <MudText Color="Color.Error">No se han cargado los datos revisa que tambien estes usando el Web Api</MudText>
+                        <MudText>No hay clientes registrados.</MudText>
                     }
                     else
                     {
-                        <MudText>No hay clientes registrados.</MudText>
+                        
+                        <MudText Color="Color.Error">No se han cargado los datos revisa que tambien estes usando el Web Api</MudText>
                     }
                 </NoRecordsContent>
             </MudTable>
