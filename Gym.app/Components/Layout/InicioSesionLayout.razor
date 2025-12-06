@@ -1,12 +1,12 @@
 ﻿@inherits LayoutComponentBase
 @using Gym.app.Theme
+@inject ThemeState Theme
 
-<MudThemeProvider Theme="@CustomTheme.LightTheme" />
+<MudThemeProvider Theme="@CustomTheme.LightTheme" IsDarkMode="@Theme.IsDark" />
 
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
-
 
 <div class="page">
     <main>
