@@ -2,10 +2,11 @@
 using Edus.Bll.Model;
 using Edus.Bll.Service;
 using Edus.Share.Model;
-using Microsoft.Extensions.Logging; 
+using Microsoft.Extensions.Logging;
 using MudBlazor.Services;
 using Gym.app.Theme;
-
+using Microsoft.Maui.Storage;
+using Edus.app.Data.Services;
 
 namespace Gym.app
 {
@@ -27,7 +28,16 @@ namespace Gym.app
 #endif
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices();
-            builder.Services.AddSingleton<ThemeState>();
+
+            // ThemeState: arrancar siguiendo el sistema
+            builder.Services.AddSingleton<ThemeState>(sp =>
+            {
+                var theme = new ThemeState();
+                // Fuerza seguir sistema al iniciar (puedes condicionar según preferencia guardada)
+                theme.SetSystem();
+                return theme;
+            });
+
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(new cApiUrl().getWebApiUrl()) });
             builder.Services.AddScoped<IClienteFarmacia, sClienteFarmacia>();
             builder.Services.AddScoped<IMedicamento, sMedicamento>();

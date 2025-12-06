@@ -2,10 +2,14 @@
 @layout InicioSesionLayout
 @using Edus.app.Data.Services
 @using Edus.App.Data.Services
-@inject NavigationManager Navigation
-@inject ISnackbar Snackbar
 
-<MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center" Style="height:100vh;">
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center" Style="height:100vh; position:relative;">
+
+    <!-- Avatar eliminado de la pantalla de inicio de sesión -->
+
     <MudPaper Class="pa-6" Elevation="4" Style="width: 90%; max-width: 400px;">
         <MudForm @ref="_form" @bind-IsValid="_formIsValid">
             <MudStack Spacing="2">
@@ -24,7 +28,6 @@
                         Registrarse
                     </MudLink>
                 </MudStack>
-
             </MudStack>
         </MudForm>
     </MudPaper>
@@ -63,7 +66,6 @@
                 return;
             }
 
-          
             Navigation.NavigateTo("/inicio", forceLoad: false);
         }
         catch (Exception ex)

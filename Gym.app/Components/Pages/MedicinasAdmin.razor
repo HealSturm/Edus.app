@@ -14,6 +14,7 @@
                 <MudTh>Descripción</MudTh>
                 <MudTh>Presentación</MudTh>
                 <MudTh>Indicaciones</MudTh>
+                <MudTh>Estado</MudTh>
                 <MudTh>Editar</MudTh>
                 <MudTh>Eliminar</MudTh>
             </HeaderContent>
@@ -21,7 +22,20 @@
                 <MudTd DataLabel="Descripción">@context.Descripcion</MudTd>
                 <MudTd DataLabel="Presentación">@context.Presentacion</MudTd>
                 <MudTd DataLabel="Indicaciones">@context.Indicaciones</MudTd>
-               <MudTd DataLabel="Editar">
+                <MudTd DataLabel="Estado">
+                    @{
+                        var activo = string.Equals(context.Estado, "Activo", StringComparison.OrdinalIgnoreCase);
+                        var color = activo ? Color.Success : Color.Error;
+                        var texto = activo ? "Disponible" : "Agotado";
+                    }
+                    <MudChip T="string"
+                             Color="@color"
+                             Variant="Variant.Filled"
+                             Size="Size.Small">
+                        @texto
+                    </MudChip>
+                </MudTd>
+                <MudTd DataLabel="Editar">
                     <MudButton Color="Color.Primary" Variant="Variant.Text" OnClick="@(() => EditarMedicamento(context.IdMedicamento))">
                         <MudIcon Icon="@Icons.Material.Filled.Edit" />
                     </MudButton>
@@ -76,13 +90,12 @@
         }
         catch (Exception ex)
         {
-        Snackbar.Add($"Error al eliminar: {ex.Message}", Severity.Error);
+            Snackbar.Add($"Error al eliminar: {ex.Message}", Severity.Error);
         }
     }
 
-     private void EditarMedicamento(int idMedicamento)
+    private void EditarMedicamento(int idMedicamento)
     {
         navigationManager.NavigateTo($"/editar-medicina/{idMedicamento}");
     }
-
 }
