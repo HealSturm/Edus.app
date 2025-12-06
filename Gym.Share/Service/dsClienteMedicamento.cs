@@ -45,6 +45,29 @@ namespace Edus.Share.Service
                 throw new Exception("Error al obtener la lista de cliente-medicamento: " + ex.Message);
             }
         }
+
+        //*******************************************************************************************
+        public async Task<List<cClienteMedicamento>> getClienteMedicamentoXCliente(cClienteMedicamento _ClienteMedicamento)
+        {
+            try
+            {
+                using var db = dbcon();
+
+                string sql = @"SELECT 
+                           Identificacion,
+                           IdMedicamento,
+                           Dosis
+                       FROM ClienteMedicamento WHERE Identificacion = @Identificacion";
+
+                var result = await db.QueryAsync<cClienteMedicamento>(sql, new { _ClienteMedicamento.Identificacion });
+
+                return result.ToList();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al obtener la lista de cliente-medicamento: " + ex.Message);
+            }
+        }
         //*******************************************************************************************
         public async Task<bool> insertarClienteMedicamento(cClienteMedicamento _ClienteMedicamento)
         {

@@ -14,5 +14,6 @@ namespace Edus.Bll.Interface
         Task<bool> insertarClienteMedicamento(cClienteMedicamento pClienteMedicamento);
         Task<bool> actualizarClienteMedicamento(cClienteMedicamento pClienteMedicamento);
         Task<bool> borrarClienteMedicamento(cClienteMedicamento pClienteMedicamento);
+        Task<List<cClienteMedicamento>> getClienteMedicamentoPorCliente(string identificacion);
     }
 }

@@ -7,6 +7,7 @@
 @inject IClienteFarmacia ClienteService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject NavigationManager Nav
 
 <MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
     <MudStack Spacing="4">
@@ -27,6 +28,7 @@
                     <MudTh>Email</MudTh>
                     <MudTh>Estado</MudTh>
                     <MudTh></MudTh>
+                    <MudTh>Medicinas</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd DataLabel="Identificación">@context.Identificacion</MudTd>
@@ -45,6 +47,9 @@
                         <MudIconButton Icon="@Icons.Material.Filled.Delete"
                                        Color="Color.Error" Size="Size.Small"
                                        OnClick="@(()=>ConfirmarEliminar(context))" />
+                    </MudTd>
+                    <MudTd>
+                        <MudButton OnClick="@(()=> VerMedicinas(context))">Medicinas</MudButton>
                     </MudTd>
                 </RowTemplate>
                 <NoRecordsContent>
@@ -379,5 +384,10 @@
             return "El formato del email no es válido";
 
         return null;
+    }
+
+     private async Task VerMedicinas(cClienteFarmacia cliente)
+    {
+         Nav.NavigateTo($"/clientemedicamentos/{cliente.Identificacion}/{cliente.Nombre}");
     }
 }

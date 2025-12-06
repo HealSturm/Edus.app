@@ -1,0 +1,55 @@
+﻿@using Edus.Share.Model
+@using Edus.Bll.Interface
+@using Edus.Share
+@inject IClienteFarmacia ClienteService
+@inject IMedicamento MedicamentoService
+@inject IClienteMedicamento ClienteMedicamentoService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="@medicinaCliente">
+            <!-- Mostrar el medicamento en modo solo lectura -->
+            <MudTextField Value="@DescripcionMedicamento" Label="Medicamento" Disabled="true" />
+
+            <!-- Campo editable para la dosis -->
+            <MudTextField @bind-Value="medicinaCliente.Dosis" Label="Dosis" Required="true" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="@Guardar">Guardar</MudButton>
+        <MudButton Color="Color.Secondary" OnClick="MudDialog.Cancel">Cancelar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public string Identificacion { get; set; }
+    [Parameter] public int IdMedicamento { get; set; }
+    [Parameter] public string DescripcionMedicamento { get; set; }
+    [Parameter] public string DosisActual { get; set; }
+
+    private MudForm form;
+    private cClienteMedicamento medicinaCliente = new();
+
+    protected override void OnInitialized()
+    {
+        medicinaCliente.Identificacion = int.Parse(Identificacion);
+        medicinaCliente.IdMedicamento = IdMedicamento;
+        medicinaCliente.Dosis = DosisActual;
+    }
+
+    private async Task Guardar()
+    {
+        await form.Validate();
+        if (!form.IsValid) return;
+
+        bool ok = await ClienteMedicamentoService.actualizarClienteMedicamento(medicinaCliente);
+        if (ok)
+            MudDialog.Close(DialogResult.Ok(true));
+        else
+            MudDialog.Close(DialogResult.Ok(false));
+    }
+}

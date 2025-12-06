@@ -1,0 +1,51 @@
+﻿@using Edus.Share.Model
+@using Edus.Bll.Interface
+@using Edus.Share
+@inject IClienteFarmacia ClienteService
+@inject IMedicamento MedicamentoService
+@inject IClienteMedicamento ClienteMedicamentoService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="form" Model="@nuevoMed">
+            <MudSelect T="int" Label="Medicamento" @bind-Value="nuevoMed.IdMedicamento" Required="true">
+                @foreach (var med in Medicamentos)
+                {
+                    <MudSelectItem Value="@med.IdMedicamento">@med.Descripcion</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudTextField @bind-Value="nuevoMed.Dosis" Label="Dosis" Required="true" />
+
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="@Guardar">Guardar</MudButton>
+        <MudButton Color="Color.Secondary" OnClick="MudDialog.Cancel">Cancelar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; }
+    [Parameter] public string Identificacion { get; set; }
+    [Parameter] public List<cMedicamento> Medicamentos { get; set; }
+
+    private MudForm form;
+    private cClienteMedicamento nuevoMed = new();
+
+    private async Task Guardar()
+    {
+        await form.Validate();
+        if (!form.IsValid) return;
+
+        nuevoMed.Identificacion = int.Parse(Identificacion);
+
+        bool ok = await ClienteMedicamentoService.insertarClienteMedicamento(nuevoMed);
+        if (ok)
+            MudDialog.Close(DialogResult.Ok(true));
+        else
+            MudDialog.Close(DialogResult.Ok(false));
+    }
+}

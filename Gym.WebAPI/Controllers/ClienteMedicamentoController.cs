@@ -29,6 +29,29 @@ namespace Edus.WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        //****************************************************************************************************
+        [HttpGet]
+        [Route("getClienteMedicamentoPorCliente/{Identificacion}")]
+        public async Task<ActionResult<List<cClienteMedicamento>>> getClienteMedicamentoXcliente(int Identificacion)
+        {
+            try
+            {
+                dbConection db = new dbConection();
+                dsClienteMedicamento mdsCat = new dsClienteMedicamento(db.sqlConection);
+                cClienteMedicamento ClienteMedicamento = new cClienteMedicamento
+                {
+                    Identificacion = Identificacion
+                };
+
+                List<cClienteMedicamento> mLista = await mdsCat.getClienteMedicamentoXCliente(ClienteMedicamento);
+                return Ok(mLista);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
         //****************************************************************************************************
         [HttpPost]

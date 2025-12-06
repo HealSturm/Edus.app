@@ -41,6 +41,29 @@ namespace Edus.Bll.Service
                 return new List<cClienteMedicamento>();
             }
         }
+        //********************************************************************************************
+        public async Task<List<cClienteMedicamento>> getClienteMedicamentoPorCliente(string identificacion)
+        {
+            try
+            {
+                cApiUrl mapi = new cApiUrl();
+                var urlApi = mapi.getWebApiUrl().Trim() + $"api/ClienteMedicamento/getClienteMedicamentoPorCliente/{identificacion}";
+                var httpClient = new HttpClient();
+                var respuesta = await httpClient.GetAsync(urlApi);
+
+                if (respuesta.IsSuccessStatusCode)
+                {
+                    var mLista = await respuesta.Content.ReadFromJsonAsync<List<cClienteMedicamento>>();
+                    return mLista ?? new List<cClienteMedicamento>();
+                }
+                return new List<cClienteMedicamento>();
+            }
+            catch
+            {
+                return new List<cClienteMedicamento>();
+            }
+        }
+
         //*********************************************************************************************
 
         public async Task<bool> insertarClienteMedicamento(cClienteMedicamento pClienteMedicamento)
@@ -96,30 +119,22 @@ namespace Edus.Bll.Service
             try
             {
                 cApiUrl mapi = new cApiUrl();
-                urlApi = mapi.getWebApiUrl().ToString().Trim() + "api/ClienteMedicamento/borrarClienteMedicamento";
+                // Construir la URL con los parámetros
+                urlApi = mapi.getWebApiUrl().Trim() +
+                         $"api/ClienteMedicamento/borrarClienteMedicamento/{pClienteMedicamento.Identificacion}/{pClienteMedicamento.IdMedicamento}";
+
                 var httpClient = new HttpClient();
-                var mclienteSerializado = JsonSerializer.Serialize(pClienteMedicamento);
-                HttpContent mContent = new StringContent(mclienteSerializado, Encoding.UTF8, "application/json");
-                var request = new HttpRequestMessage
-                {
-                    Method = HttpMethod.Delete,
-                    RequestUri = new Uri(urlApi),
-                    Content = mContent
-                };
-                var respuesta = await httpClient.SendAsync(request);
-                if (respuesta.IsSuccessStatusCode)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                var respuesta = await httpClient.DeleteAsync(urlApi);
+
+                return respuesta.IsSuccessStatusCode;
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
         }
+
     }
+
+
 }

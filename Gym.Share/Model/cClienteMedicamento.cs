@@ -10,7 +10,7 @@ namespace Edus.Share.Model
     {
         public int Identificacion { get; set; } 
         public int IdMedicamento { get; set; }
-        public string Dosis { get; set; }           // Dosis recomendada
+        public string Dosis { get; set; }           
 
         public cClienteMedicamento()
         {

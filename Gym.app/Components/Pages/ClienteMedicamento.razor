@@ -1,42 +1,78 @@
-﻿@page "/clientemedicamentos"
+﻿@page "/clientemedicamentos/{identificacion}/{nombre}"
 @using Edus.Share.Model
+@using Edus.Bll.Interface
+@using Edus.Share
+@inject IClienteFarmacia ClienteService
+@inject IMedicamento MedicamentoService
+@inject IClienteMedicamento ClienteMedicamentoService
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+@inject IDialogService DialogService
+
 
 <MudContainer MaxWidth="MaxWidth.False" Class="px-4 py-4" Style="min-height:100vh;">
-    <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">Mis Medicamentos</MudText>
+    
+   <MudButton OnClick="@Volver">Volver</MudButton>
+
+    <MudText Typo="Typo.h5" Color="Color.Primary" Class="mb-4">
+        Medicamentos del Cliente: @nombre
+    </MudText>
 
     <MudStack Spacing="3">
-        @foreach (var item in MedicamentosCompletos)
+       <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="AbrirDialogoNuevoMedicamento" Style="align-self:flex-start">
+            <MudIcon Icon="@Icons.Material.Filled.Add" />&nbsp;Nuevo Medicamento
+        </MudButton>
+
+
+        @if (MedicamentosCompletos.Any())
         {
-            <MudPaper Elevation="3" Class="p-4" Style="border-radius:12px; background-color:primary;">
-                <MudGrid>
-                    <MudItem xs="12">
-                        <MudText Typo="Typo.subtitle1">Descripción: @item.Descripcion</MudText>
-                        <MudText Typo="Typo.subtitle2">Indicaciones: @item.Indicaciones</MudText>
-                        <MudText Typo="Typo.subtitle2">Dosis recomendada: @item.Dosis</MudText>
-                    </MudItem>
-                </MudGrid>
-            </MudPaper>
+            @foreach (var item in MedicamentosCompletos)
+            {
+                <MudPaper Elevation="3" Class="p-4" Style="border-radius:12px;">
+                    <MudGrid>
+                        <MudItem xs="12">
+                            <MudText Typo="Typo.subtitle1">Descripción: @item.Descripcion</MudText>
+                            <MudText Typo="Typo.subtitle2">Indicaciones: @item.Indicaciones</MudText>
+                            <MudText Typo="Typo.subtitle2">Dosis recomendada: @item.Dosis</MudText>
+                        </MudItem>
+                        <MudItem xs="12" Class="d-flex justify-end mt-2">
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Secondary" OnClick="@(() => EditarMedicinaCliente(item))"  />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => EliminarMedicinaCliente(item))" />
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            }
+        }
+        else
+        {
+            <MudText Color="Color.Error">No hay medicamentos registrados para este cliente.</MudText>
         }
     </MudStack>
 </MudContainer>
 
 @code {
-    // Simulación de datos
-    private List<cClienteMedicamento> ClienteMedicamentos = new()
-    {
-        new cClienteMedicamento { Identificacion = 123, IdMedicamento = 1, Dosis = "200mg" },
-        new cClienteMedicamento { Identificacion = 123, IdMedicamento = 2, Dosis = "500mg" },
-        new cClienteMedicamento { Identificacion = 123, IdMedicamento = 3, Dosis = "100ml" }
-    };
+    [Parameter] public string identificacion { get; set; }
+    [Parameter] public string nombre { get; set; }
 
-    private List<cMedicamento> Medicamentos = new()
-    {
-        new cMedicamento { IdMedicamento = 1, Descripcion = "Paracetamol", Indicaciones = "Fiebre y dolor", Presentacion = "Tableta" },
-        new cMedicamento { IdMedicamento = 2, Descripcion = "Esomeprazol", Indicaciones = "Reflujo gástrico", Presentacion = "Tableta" },
-        new cMedicamento { IdMedicamento = 3, Descripcion = "Clorferamina", Indicaciones = "Alergias", Presentacion = "Jarabe" }
-    };
+    private List<cClienteMedicamento> ClienteMedicamentos = new();
+    private List<cMedicamento> Medicamentos = new();
 
-    // Resultado combinado
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            
+            ClienteMedicamentos = await ClienteMedicamentoService.getClienteMedicamentoPorCliente(identificacion);
+
+           
+            Medicamentos = await MedicamentoService.getMedicamento();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error cargando medicamentos: {ex.Message}", Severity.Error);
+        }
+    }
+
     private List<MedicamentoClienteView> MedicamentosCompletos => (
         from cm in ClienteMedicamentos
         join m in Medicamentos on cm.IdMedicamento equals m.IdMedicamento
@@ -48,7 +84,6 @@
             Dosis = cm.Dosis
         }).ToList();
 
-    // Modelo combinado
     public class MedicamentoClienteView
     {
         public int IdMedicamento { get; set; }
@@ -57,6 +92,81 @@
         public string Dosis { get; set; }
     }
 
-    private string GetColor(int id) =>
-        id % 2 == 0 ? "#3BB2CE" : "#1976D2"; // Alterna entre Secondary y Primary
+    private void Volver()
+    {
+         Nav.NavigateTo("/cliente");
+    }
+
+    private async Task EliminarMedicinaCliente(MedicamentoClienteView medicina)
+    {
+     try
+        {
+            var clienteMed = new cClienteMedicamento
+            {
+                Identificacion = int.Parse(identificacion),
+                IdMedicamento = medicina.IdMedicamento,
+                Dosis = medicina.Dosis
+            };
+
+            bool ok = await ClienteMedicamentoService.borrarClienteMedicamento(clienteMed);
+
+            if (ok)
+            {
+                Snackbar.Add("Medicamento eliminado correctamente.", Severity.Success);
+                ClienteMedicamentos = await ClienteMedicamentoService.getClienteMedicamentoPorCliente(identificacion);
+            }
+            else
+            {
+                Snackbar.Add("No se pudo eliminar el medicamento.", Severity.Warning);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error al eliminar: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task AbrirDialogoNuevoMedicamento()
+    {
+        var parameters = new DialogParameters
+        {
+            { "Identificacion", identificacion },
+            { "Medicamentos", Medicamentos }
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+
+        var dialog = DialogService.Show<NuevoMedicamentoDialog>("Agregar Medicamento", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            Snackbar.Add("Medicamento agregado correctamente.", Severity.Success);
+            ClienteMedicamentos = await ClienteMedicamentoService.getClienteMedicamentoPorCliente(identificacion);
+        }
+    }
+
+    private async Task EditarMedicinaCliente(MedicamentoClienteView item)
+    {
+        var parameters = new DialogParameters
+        {
+            { "Identificacion", identificacion },
+            { "IdMedicamento", item.IdMedicamento },
+            { "DescripcionMedicamento", item.Descripcion },
+            { "DosisActual", item.Dosis }
+        };
+
+        var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true };
+
+        var dialog = DialogService.Show<EditarMedicamentoClienteDialog>("Editar Dosis", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+        Snackbar.Add("Dosis actualizada correctamente.", Severity.Success);
+        ClienteMedicamentos = await ClienteMedicamentoService.getClienteMedicamentoPorCliente(identificacion);
+        }
+    }
+
+
 }

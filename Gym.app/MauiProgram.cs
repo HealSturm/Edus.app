@@ -31,6 +31,7 @@ namespace Gym.app
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(new cApiUrl().getWebApiUrl()) });
             builder.Services.AddScoped<IClienteFarmacia, sClienteFarmacia>();
             builder.Services.AddScoped<IMedicamento, sMedicamento>();
+            builder.Services.AddScoped<IClienteMedicamento, sClienteMedicamento>();
 
 
             return builder.Build();
