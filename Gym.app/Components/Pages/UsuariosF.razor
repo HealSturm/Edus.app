@@ -55,6 +55,10 @@
                               Required="true" RequiredError="El correo es obligatorio"
                               Validation="@(new Func<string, string>(ValidarCorreo))" />
             </div>
+            <div class="row mt-2">
+                <MudTextField @bind-Value="mUsuario.Role" Label="Rol del usuario" Variant="Variant.Outlined"
+                              Required="true" RequiredError="El rol es obligatorio" />
+            </div>
 
             <div class="row mt-2">
                 <MudTextField @bind-Value="mUsuario.Password" Label="Contraseña" Variant="Variant.Outlined"
