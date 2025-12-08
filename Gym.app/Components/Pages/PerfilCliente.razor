@@ -1,0 +1,88 @@
+﻿@page "/perfil/{identificacion}"
+@using Edus.Share.Model
+@using Edus.Bll.Interface
+@inject IClienteFarmacia ClienteService
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.False" Class="mt-4">
+    <MudPaper Class="p-4" Elevation="2">
+        <MudText Typo="Typo.h5" Color="Color.Primary">Perfil del Cliente</MudText>
+        <MudDivider Class="mb-4" />
+
+        @if (cliente == null)
+        {
+            <MudText Color="Color.Error">No se encontró el cliente con la identificación: @identificacion</MudText>
+        }
+        else
+        {
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.subtitle1">Identificación:</MudText>
+                    <MudText Typo="Typo.body1">@cliente.Identificacion</MudText>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.subtitle1">Nombre:</MudText>
+                    <MudText Typo="Typo.body1">@cliente.Nombre</MudText>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.subtitle1">Fecha de Nacimiento:</MudText>
+                    <MudText Typo="Typo.body1">@cliente.FechaNacimiento.ToShortDateString()</MudText>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.subtitle1">Teléfono:</MudText>
+                    <MudText Typo="Typo.body1">@cliente.Telefono</MudText>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.subtitle1">Email:</MudText>
+                    <MudText Typo="Typo.body1">@cliente.Email</MudText>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.subtitle1">Estado:</MudText>
+                    <MudChip T="string" Color="@(cliente.Estado == "Activo" ? Color.Success : Color.Error)" Variant="Variant.Filled">
+                        @cliente.Estado
+                    </MudChip>
+                </MudItem>
+            </MudGrid>
+        }
+    </MudPaper>
+</MudContainer>
+
+@code {
+    [Parameter] public string identificacion { get; set; }
+    private cClienteFarmacia  cliente = new();
+    private List<cClienteFarmacia> Clientes = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await CargarClientes();
+            var idNormalizado = identificacion?.Trim();
+
+            cliente = Clientes.FirstOrDefault(c =>
+                !string.IsNullOrWhiteSpace(c.Identificacion) &&
+                string.Equals(c.Identificacion.Trim(), idNormalizado, StringComparison.OrdinalIgnoreCase));
+
+            if (cliente == null)
+                Snackbar.Add($"No se encontró cliente con identificación {identificacion}", Severity.Warning);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error cargando perfil: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task CargarClientes()
+    {
+        try
+        {
+            Clientes = await ClienteService.getClienteFarmacia();
+      
+        }
+        catch (Exception ex)
+        {
+            
+            Snackbar.Add($"Error cargando cliente: {ex.Message}", Severity.Error);
+        }
+    }
+}

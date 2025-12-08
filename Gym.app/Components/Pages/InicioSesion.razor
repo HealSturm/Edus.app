@@ -2,6 +2,7 @@
 @layout InicioSesionLayout
 @using Edus.app.Data.Services
 @using Edus.App.Data.Services
+@using Microsoft.Maui.Storage;
 
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
@@ -65,8 +66,20 @@
                 Snackbar.Add("Usuario o contraseña incorrectos.", Severity.Error);
                 return;
             }
+            if (!string.IsNullOrEmpty(usuario.Nombre))
+                await SecureStorage.Default.SetAsync("usuarioNombre", usuario.Nombre);
 
-            Navigation.NavigateTo("/inicio", forceLoad: false);
+            if (!string.IsNullOrWhiteSpace(usuario.Role))
+                await SecureStorage.Default.SetAsync("role", usuario.Role.Trim());
+
+
+            var role = usuario.Role?.Trim();
+            if (string.Equals(role, "cliente", StringComparison.OrdinalIgnoreCase))
+            {
+                Navigation.NavigateTo("/iniciocliente", forceLoad: false);
+            }
+            else { Navigation.NavigateTo("/inicio", forceLoad: false); }
+            
         }
         catch (Exception ex)
         {

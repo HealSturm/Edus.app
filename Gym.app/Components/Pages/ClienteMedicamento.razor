@@ -19,9 +19,12 @@
     </MudText>
 
     <MudStack Spacing="3">
-       <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="AbrirDialogoNuevoMedicamento" Style="align-self:flex-start">
-            <MudIcon Icon="@Icons.Material.Filled.Add" />&nbsp;Nuevo Medicamento
-        </MudButton>
+        @if (!string.Equals(_role?.Trim(), "cliente", StringComparison.OrdinalIgnoreCase))
+        {
+            <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@AbrirDialogoNuevoMedicamento" Style="align-self:flex-start">
+                <MudIcon Icon="@Icons.Material.Filled.Add" />&nbsp;Nuevo Medicamento
+            </MudButton>
+        }
 
 
         @if (MedicamentosCompletos.Any())
@@ -36,8 +39,11 @@
                             <MudText Typo="Typo.subtitle2">Dosis recomendada: @item.Dosis</MudText>
                         </MudItem>
                         <MudItem xs="12" Class="d-flex justify-end mt-2">
-                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Secondary" OnClick="@(() => EditarMedicinaCliente(item))"  />
+                            @if (!string.Equals(_role?.Trim(), "cliente", StringComparison.OrdinalIgnoreCase))
+                            {
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Secondary" OnClick="@(() => EditarMedicinaCliente(item))" />
                                 <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => EliminarMedicinaCliente(item))" />
+                            }
                         </MudItem>
                     </MudGrid>
                 </MudPaper>
@@ -53,18 +59,19 @@
 @code {
     [Parameter] public string identificacion { get; set; }
     [Parameter] public string nombre { get; set; }
-
+    private string? _role;
     private List<cClienteMedicamento> ClienteMedicamentos = new();
     private List<cMedicamento> Medicamentos = new();
 
     protected override async Task OnInitializedAsync()
     {
+        _role = await SecureStorage.Default.GetAsync("role");
         try
         {
-            
+
             ClienteMedicamentos = await ClienteMedicamentoService.getClienteMedicamentoPorCliente(identificacion);
 
-           
+
             Medicamentos = await MedicamentoService.getMedicamento();
         }
         catch (Exception ex)
@@ -94,7 +101,15 @@
 
     private void Volver()
     {
-         Nav.NavigateTo("/cliente");
+        if (_role == "Cliente" || _role == "cliente")
+        {
+            Nav.NavigateTo("/iniciocliente");
+        }
+        else
+        {
+            Nav.NavigateTo("/cliente");
+        }
+
     }
 
     private async Task EliminarMedicinaCliente(MedicamentoClienteView medicina)
