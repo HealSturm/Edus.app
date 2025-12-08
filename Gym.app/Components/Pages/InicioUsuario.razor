@@ -4,6 +4,11 @@
 @using Edus.app.Data.Services
 @inject ISnackbar sb
 @inject NavigationManager NavigationManager
+@using MudBlazor
+@using Edus.Share
+@inject IClienteFarmacia ClienteService
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
 
 
 <MudContainer Style="height:100vh; width: 100%; display:flex; flex-direction:column;">
@@ -13,13 +18,13 @@
     </MudStack>
 
     <MudStack Spacing="2" Style="width: 100%;" Class="d-flex justify-center align-center">
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width: 90%; height:5rem; display:flex; flex-direction:row; justify-content:start; margin-bottom:2rem" OnClick="@(() => NavigationManager.NavigateTo("/clientemedicamentos"))">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width: 90%; height:5rem; display:flex; flex-direction:row; justify-content:start; margin-bottom:2rem" OnClick="@VerMedicinas">
             <MudIcon Icon="@Icons.Material.Filled.Medication" Size="Size.Large" Style="margin-left:1rem"></MudIcon>
             <span Style="margin-left:1rem"></span>
             Medicinas
         </MudButton>
 
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width: 90%; height:5rem; display:flex; flex-direction:row; justify-content:start" OnClick="@(() => NavigationManager.NavigateTo("/cliente"))">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Style="width: 90%; height:5rem; display:flex; flex-direction:row; justify-content:start" OnClick="@VerPerfil">
             <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Size="Size.Large" Style="margin-left:1rem"></MudIcon>
             <span Style="margin-left:1rem"></span>
             Perfiles/Clientes
@@ -28,5 +33,52 @@
 </MudContainer>
 
 @code {
+    private List<cClienteFarmacia> Clientes = new();
+    private cClienteFarmacia clienteFarmacia = new();
+
+    private string? _role;
+    private string? _nombre;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _role = await SecureStorage.Default.GetAsync("role");
+        _nombre = await SecureStorage.Default.GetAsync("usuarioNombre");
+        if (_role == "Cliente" || _role == "cliente")
+        {
+            Clientes = await ClienteService.getClienteFarmacia();
+
+            clienteFarmacia = Clientes.FirstOrDefault(u =>
+             !string.IsNullOrWhiteSpace(u.Nombre) &&
+             u.Nombre.Equals(_nombre, StringComparison.OrdinalIgnoreCase));
+        }
+
+    }
+
+    private async Task VerMedicinas()
+    {
+        if (clienteFarmacia != null)
+        {
+            Nav.NavigateTo($"/clientemedicamentos/{clienteFarmacia.Identificacion}/{clienteFarmacia.Nombre}");
+        }
+        else
+        {
+
+            Snackbar.Add($"Error al cargar usuario", Severity.Error);
+        }
+    }
+
+    private async Task VerPerfil()
+    {
+        if (clienteFarmacia != null)
+        {
+            Nav.NavigateTo($"/perfil/{clienteFarmacia.Identificacion}");
+        }
+        else
+        {
+
+            Snackbar.Add($"Error al cargar usuario", Severity.Error);
+        }
+    }
+
     
 }

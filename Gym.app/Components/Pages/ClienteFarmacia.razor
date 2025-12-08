@@ -200,8 +200,10 @@
         };
         FechaNacimientoTemp = ClienteEdit.FechaNacimiento;
         MostrarFormulario = true;
+        Snackbar.Add($"Editando cliente: {ClienteEdit.Nombre}", Severity.Info);
 
-        await InvokeAsync(StateHasChanged);
+
+        StateHasChanged();
         await Task.Yield();
         if (IdentificacionInput is not null)
             await IdentificacionInput.FocusAsync();

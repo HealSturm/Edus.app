@@ -1,4 +1,12 @@
 ﻿@using MudBlazor
+@using Edus.Share.Model
+@using Edus.Bll.Interface
+@using Edus.Share
+@using System.ComponentModel.DataAnnotations
+@using System.Text.RegularExpressions
+@inject IClienteFarmacia ClienteService
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
 
 <MudButton Variant="Variant.Text" OnClick="@(() => OpenDrawer(Anchor.Start))">
     <MudIcon Icon="@Icons.Material.Rounded.Menu" />
@@ -10,31 +18,55 @@
             <MudText Typo="Typo.h6" Class="mr-auto">Edus Farmacias</MudText>
         </MudDrawerHeader>
 
-        <MudNavMenu>
-            <MudNavLink Href="/inicio" Icon="@Icons.Material.Rounded.Home" Match="NavLinkMatch.All">
-                Inicio
-            </MudNavLink>
-            <MudNavLink Href="/medicinas" Icon="@Icons.Material.Rounded.Medication" Match="NavLinkMatch.All">
-                Medicinas
-            </MudNavLink>
-            <MudNavLink Href="/editar-medicina" Icon="@Icons.Material.Rounded.MedicalInformation" Match="NavLinkMatch.All">
-                Nuevo Medicamento
-            </MudNavLink>
-            <MudNavLink Href="/usuarios" Icon="@Icons.Material.Rounded.Group" Match="NavLinkMatch.All">
-                Usuarios
-            </MudNavLink>
-            <MudNavLink Href="/cliente" Icon="@Icons.Material.Rounded.Person" Match="NavLinkMatch.All">
-                Clientes 
-            </MudNavLink>
-            <MudNavLink Href="/" Icon="@Icons.Material.Rounded.ExitToApp" Match="NavLinkMatch.All">
-                Cerrar Sesión
-            </MudNavLink>
-            <MudNavLink OnClick="_ => _open = false" Icon="@Icons.Material.Rounded.Close">
-                Cerrar Menú
-            </MudNavLink>
-        </MudNavMenu>
-
-        <!-- Empuja la botonera al fondo -->
+        @if (!string.IsNullOrEmpty(_role) && _role.Equals("cliente", StringComparison.OrdinalIgnoreCase))
+        {
+            <!-- Cliente -->
+            <MudNavMenu>
+                <MudNavLink Href="/iniciocliente" Icon="@Icons.Material.Rounded.Home" Match="NavLinkMatch.All">
+                    Inicio
+                </MudNavLink>
+                <MudNavLink OnClick="@VerMedicinas" Icon="@Icons.Material.Rounded.Medication" Match="NavLinkMatch.All">
+                    Medicinas
+                </MudNavLink>
+                <MudNavLink OnClick="@VerPerfil" Icon="@Icons.Material.Rounded.MedicalInformation" Match="NavLinkMatch.All">
+                    Perfil
+                </MudNavLink>
+                <MudNavLink Href="/" Icon="@Icons.Material.Rounded.ExitToApp" Match="NavLinkMatch.All">
+                    Cerrar Sesión
+                </MudNavLink>
+                <MudNavLink OnClick="_ => _open = false" Icon="@Icons.Material.Rounded.Close">
+                    Cerrar Menú
+                </MudNavLink>
+            </MudNavMenu>
+        }
+        else
+        {
+            <!-- Admin -->
+            <MudNavMenu>
+                <MudNavLink Href="/inicio" Icon="@Icons.Material.Rounded.Home" Match="NavLinkMatch.All">
+                    Inicio
+                </MudNavLink>
+                <MudNavLink Href="/medicinas" Icon="@Icons.Material.Rounded.Medication" Match="NavLinkMatch.All">
+                    Medicinas
+                </MudNavLink>
+                <MudNavLink Href="/editar-medicina" Icon="@Icons.Material.Rounded.MedicalInformation" Match="NavLinkMatch.All">
+                    Nuevo Medicamento
+                </MudNavLink>
+                <MudNavLink Href="/usuarios" Icon="@Icons.Material.Rounded.Group" Match="NavLinkMatch.All">
+                    Usuarios
+                </MudNavLink>
+                <MudNavLink Href="/cliente" Icon="@Icons.Material.Rounded.Person" Match="NavLinkMatch.All">
+                    Clientes
+                </MudNavLink>
+                <MudNavLink Href="/" Icon="@Icons.Material.Rounded.ExitToApp" Match="NavLinkMatch.All">
+                    Cerrar Sesión
+                </MudNavLink>
+                <MudNavLink OnClick="_ => _open = false" Icon="@Icons.Material.Rounded.Close">
+                    Cerrar Menú
+                </MudNavLink>
+            </MudNavMenu>
+        }
+    
         <div style="margin-top:auto">
             <MudGrid Justify="Justify.Center" AlignItems="AlignItems.Center" Class="px-3 py-2">
                 <MudItem xs="4" sm="4" md="4" Class="d-flex justify-center">
@@ -53,14 +85,61 @@
 
 @code {
     [CascadingParameter] public Gym.app.Theme.ThemeState? Theme { get; set; }
+    private List<cClienteFarmacia> Clientes = new();
+    private cClienteFarmacia clienteFarmacia = new();
 
     private bool _open;
     private Anchor _anchor;
     private bool _overlayAutoClose = true;
+
+    private string? _role;
+    private string? _nombre;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _role = await SecureStorage.Default.GetAsync("role");
+        _nombre = await SecureStorage.Default.GetAsync("usuarioNombre");
+        if(_role=="Cliente"||_role=="cliente")
+        {
+            Clientes = await ClienteService.getClienteFarmacia();
+
+            clienteFarmacia = Clientes.FirstOrDefault(u =>
+             !string.IsNullOrWhiteSpace(u.Nombre) &&
+             u.Nombre.Equals(_nombre, StringComparison.OrdinalIgnoreCase));
+        }
+
+    }
 
     private void OpenDrawer(Anchor anchor)
     {
         _open = true;
         _anchor = anchor;
     }
+
+    private async Task VerMedicinas()
+    {
+        if (clienteFarmacia != null)
+        {
+            Nav.NavigateTo($"/clientemedicamentos/{clienteFarmacia.Identificacion}/{clienteFarmacia.Nombre}");
+        }
+        else
+        {
+           
+            Snackbar.Add($"Error al cargar usuario", Severity.Error);
+        }
+    }
+
+    private async Task VerPerfil()
+    {
+        if (clienteFarmacia != null)
+        {
+            Nav.NavigateTo($"/perfil/{clienteFarmacia.Identificacion}");
+        }
+        else
+        {
+           
+            Snackbar.Add($"Error al cargar usuario", Severity.Error);
+        }
+    }
+
 }
