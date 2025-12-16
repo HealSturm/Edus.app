@@ -3,9 +3,12 @@
 @using Edus.app.Data.Services
 @using Edus.App.Data.Services
 @using Microsoft.Maui.Storage;
+@using Microsoft.Maui.Networking;
+@using Gym.app.Services;
 
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
+@inject ConnectivityService ConnectivityService
 
 <MudContainer MaxWidth="MaxWidth.False" Class="d-flex justify-center align-center" Style="height:100vh; position:relative;">
 
@@ -41,6 +44,24 @@
     private string _username;
     private string _password;
 
+    protected override void OnInitialized()
+    {
+        ConnectivityService.ConnectivityChanged += OnConnectivityChanged;
+    }
+
+    void OnConnectivityChanged(bool isConnected)
+    {
+        // Mostrar aviso cuando cambia la conectividad
+        _ = InvokeAsync(() =>
+        {
+            if (isConnected)
+                Snackbar.Add("Conexión restablecida.", Severity.Success);
+            else
+                Snackbar.Add("Se perdió la conexión a Internet.", Severity.Warning);
+            StateHasChanged();
+        });
+    }
+
     private async Task Login()
     {
         await _form.Validate();
@@ -50,7 +71,28 @@
             return;
         }
 
+        if (!ConnectivityService.IsConnected)
+        {
+            Snackbar.Add("No hay conexión. Reintentará cuando vuelva la conexión.", Severity.Warning);
+
+            // Encolamos la operación de login para que se ejecute automáticamente cuando haya conexión.
+            ConnectivityService.EnqueueRetry(async () =>
+            {
+                // Ejecutar la lógica de autenticación en el contexto del componente
+                await InvokeAsync(async () => await AttemptLoginCoreAsync());
+            });
+
+            return;
+        }
+
+        await AttemptLoginCoreAsync();
+    }
+
+    // Extraemos la lógica que realiza llamadas de red para poder reintentarlo
+    private async Task AttemptLoginCoreAsync()
+    {
         _isLoading = true;
+        StateHasChanged();
         try
         {
             var svc = new dbFBUsuarios();
@@ -72,14 +114,12 @@
             if (!string.IsNullOrWhiteSpace(usuario.Role))
                 await SecureStorage.Default.SetAsync("role", usuario.Role.Trim());
 
-
             var role = usuario.Role?.Trim();
             if (string.Equals(role, "cliente", StringComparison.OrdinalIgnoreCase))
             {
                 Navigation.NavigateTo("/iniciocliente", forceLoad: false);
             }
             else { Navigation.NavigateTo("/inicio", forceLoad: false); }
-            
         }
         catch (Exception ex)
         {
@@ -88,6 +128,12 @@
         finally
         {
             _isLoading = false;
+            StateHasChanged();
         }
+    }
+
+    public void Dispose()
+    {
+        ConnectivityService.ConnectivityChanged -= OnConnectivityChanged;
     }
 }

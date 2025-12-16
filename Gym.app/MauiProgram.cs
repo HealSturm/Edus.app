@@ -42,7 +42,7 @@ namespace Gym.app
             builder.Services.AddScoped<IClienteFarmacia, sClienteFarmacia>();
             builder.Services.AddScoped<IMedicamento, sMedicamento>();
             builder.Services.AddScoped<IClienteMedicamento, sClienteMedicamento>();
-
+            builder.Services.AddSingleton<Gym.app.Services.ConnectivityService>();
 
             return builder.Build();
         }
