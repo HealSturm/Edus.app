@@ -2,7 +2,9 @@
 @using Edus.app.Data.Services
 @using Edus.Share.Model
 @using Edus.App.Data.Services
+@using Gym.app.Services
 @inject ISnackbar snackbar
+@inject ConnectivityService ConnectivityService
 
 <MudPaper Class="pa-4">
 
@@ -110,6 +112,13 @@
     // ********************************************************************************
     private async Task CargarListaUsuarios()
     {
+        // Comprobamos conectividad antes de intentar llamar a Firebase
+        if (!ConnectivityService.IsConnected)
+        {
+            snackbar.Add("No hay conexión a Internet para mostrar los datos.", Severity.Warning);
+            return;
+        }
+
         dbFBUsuarios mdslUsuario = new();
         mListaUsuarios = await mdslUsuario.getUsuariosAsync();
         snackbar.Add("Lista de usuarios actualizada", Severity.Success);
