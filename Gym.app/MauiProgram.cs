@@ -42,6 +42,7 @@ namespace Gym.app
             builder.Services.AddScoped<IClienteFarmacia, sClienteFarmacia>();
             builder.Services.AddScoped<IMedicamento, sMedicamento>();
             builder.Services.AddScoped<IClienteMedicamento, sClienteMedicamento>();
+            // Asegúrate de tener registrado el servicio singleton (si no está ya registrado)
             builder.Services.AddSingleton<Gym.app.Services.ConnectivityService>();
 
             return builder.Build();

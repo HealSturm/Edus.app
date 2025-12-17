@@ -1,0 +1,97 @@
+@using Gym.app.Services
+@using MudBlazor
+@using Microsoft.AspNetCore.Components.Routing
+@inject ConnectivityService ConnectivityService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+@implements IDisposable
+
+@if (visible)
+{
+    <MudOverlay Visible="true" DarkBackground="true" ZIndex="1300">
+        <MudStack AlignItems="AlignItems.Center"
+                  JustifyContent="JustifyContent.Center"
+                  Style="height:100vh;">
+
+            <MudPaper Elevation="8" Class="pa-4" Rounded="true">
+
+                <MudStack Spacing="1" AlignItems="AlignItems.Center">
+
+                    <MudIcon Icon="@Icons.Material.Filled.SignalWifiOff"
+                             Size="Size.Large"
+                             Color="Color.Warning" />
+
+                    <MudText Typo="Typo.h6">
+                        Sin conexión
+                    </MudText>
+
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        No se pueden cargar datos
+                    </MudText>
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Size="Size.Small"
+                               OnClick="RetryAsync">
+                        Reintentar
+                    </MudButton>
+
+                </MudStack>
+
+            </MudPaper>
+
+        </MudStack>
+    </MudOverlay>
+}
+
+
+@code {
+    bool visible;
+
+    protected override void OnInitialized()
+    {
+        visible = !ConnectivityService.IsConnected;
+        ConnectivityService.ConnectivityChanged += OnConnectivityChanged;
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        if (!ConnectivityService.IsConnected)
+        {
+            visible = true;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    void OnConnectivityChanged(bool isConnected)
+    {
+        visible = !isConnected;
+        var msg = isConnected ? "Conexión restablecida." : "Se perdió la conexión a Internet.";
+        Snackbar.Add(msg, isConnected ? Severity.Success : Severity.Warning);
+        InvokeAsync(StateHasChanged);
+    }
+
+    async Task RetryAsync()
+    {
+        if (ConnectivityService.IsConnected)
+        {
+            visible = false;
+            Snackbar.Add("Conexión detectada. Reintentando...", Severity.Success);
+            Navigation.NavigateTo(Navigation.Uri, forceLoad: false);
+        }
+        else
+        {
+            Snackbar.Add("Aún sin conexión.", Severity.Warning);
+        }
+
+        await Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        ConnectivityService.ConnectivityChanged -= OnConnectivityChanged;
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+}

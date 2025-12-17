@@ -1,7 +1,9 @@
-﻿@inherits LayoutComponentBase
-@using Gym.app.Theme
+﻿@using Gym.app.Theme
 @using MudBlazor
+@using Gym.app.Components.Common
 @inject ThemeState Theme
+@inherits LayoutComponentBase
+@implements IDisposable
 
 <CascadingValue Value="Theme">
     <MudThemeProvider Theme="@CustomTheme.LightTheme" IsDarkMode="@Theme.IsDark" />
@@ -10,15 +12,21 @@
     <MudDialogProvider />
     <MudSnackbarProvider />
 
+
+    <!-- Banner global para reintento offline -->
+    <OfflineRetryBanner />
+
     <div class="page">
         <div class="sidebar">
             <NavMenu />
         </div>
 
         <main>
-            <article class="content px-4">
-                @Body
-            </article>
+            <MudLayout>
+                <article class="content px-4">
+                    @Body
+                </article>
+            </MudLayout>
         </main>
     </div>
 </CascadingValue>
